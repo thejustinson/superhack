@@ -39,6 +39,7 @@ export interface Database {
           university_id: string | null;
           university_email: string | null;
           university_verified: boolean;
+          is_admin: boolean;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at"> & { id: string };
@@ -88,6 +89,19 @@ export interface Database {
         Row: UniversityVerification;
         Insert: Omit<UniversityVerification, "id" | "created_at"> & { id?: string };
         Update: Partial<Omit<UniversityVerification, "id" | "created_at"> & { id?: string }>;
+        Relationships: [];
+      };
+      ideas: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          category: string | null;
+          difficulty: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["ideas"]["Row"], "id" | "created_at"> & { id?: string };
+        Update: Partial<Omit<Database["public"]["Tables"]["ideas"]["Row"], "id" | "created_at">>;
         Relationships: [];
       };
     };

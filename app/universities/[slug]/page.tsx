@@ -141,9 +141,19 @@ export default function UniversityDetailPage() {
               width: "64px", height: "64px", borderRadius: "12px",
               backgroundColor: "rgba(255,186,8,0.12)", border: "1px solid rgba(255,186,8,0.2)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "1.75rem", fontWeight: 900, color: "#ffba08", fontFamily: "var(--font-fraunces), serif"
+              fontSize: "1.75rem", fontWeight: 900, color: "#ffba08",
+              fontFamily: "var(--font-fraunces), serif",
+              overflow: "hidden", flexShrink: 0,
             }}>
-              {uni.name.charAt(0)}
+              {uni.logo_url ? (
+                <img
+                  src={uni.logo_url}
+                  alt={`${uni.name} logo`}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+              ) : (
+                uni.name.charAt(0)
+              )}
             </div>
             <div>
               <h1 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "2.25rem", margin: "0 0 6px" }}>

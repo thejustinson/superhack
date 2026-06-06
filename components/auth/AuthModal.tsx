@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, Loader2, CheckCircle2, Mail } from "lucide-react";
 import { sendOtp, verifyOtp } from "@/lib/auth";
-import { useUser } from "@/contexts/AuthContext";
+import { useUser } from "@/context/AuthContext";
 
 interface AuthModalProps {
   isOpen: boolean;

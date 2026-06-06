@@ -1,0 +1,119 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Trash2, ExternalLink } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { DataTable } from "@/components/admin/DataTable";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
+
+interface ProjectRow {
+  id: string;
+  name: string;
+  description: string | null;
+  github_url: string | null;
+  live_url: string | null;
+  upvote_count: number;
+  created_at: string;
+  profiles: { full_name: string | null } | null;
+  cohorts: { title: string; universities: { name: string } | null } | null;
+}
+
+export default function AdminProjectsPage() {
+  const [data, setData] = useState<ProjectRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<ProjectRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const { data: rows } = await supabase
+      .from("projects")
+      .select("*, profiles(full_name), cohorts(title, universities(name))")
+      .order("created_at", { ascending: false });
+    setData((rows as any) ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    await supabase.from("projects").delete().eq("id", deleteTarget.id);
+    setDeleteTarget(null);
+    setDeleting(false);
+    await load();
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: "24px" }}>
+        <h1 style={{
+          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
+        }}>Projects</h1>
+        <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
+          {data.length} projects submitted
+        </p>
+      </div>
+
+      <DataTable
+        columns={[
+          { key: "name", label: "Project", sortable: true },
+          { key: "profiles", label: "Builder", render: (r) => r.profiles?.full_name ?? "—" },
+          { key: "cohorts", label: "Hackathon", render: (r) => r.cohorts?.title ?? "—" },
+          { key: "cohorts", label: "University", render: (r) => r.cohorts?.universities?.name ?? "—" },
+          { key: "upvote_count", label: "Votes", sortable: true, render: (r) => (
+            <span style={{ fontWeight: 600, color: "#ffba08" }}>{r.upvote_count}</span>
+          )},
+          { key: "github_url", label: "Links", render: (r) => (
+            <div style={{ display: "flex", gap: "6px" }}>
+              {r.github_url && (
+                <a href={r.github_url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "0.8rem", color: "#888888", textDecoration: "none" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#f0f0f0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#888888")}
+                >
+                  <ExternalLink size={13} /> GitHub
+                </a>
+              )}
+              {r.live_url && (
+                <a href={r.live_url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "0.8rem", color: "#888888", textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ffba08")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#888888")}
+                >
+                  <ExternalLink size={13} /> Live
+                </a>
+              )}
+            </div>
+          )},
+          { key: "created_at", label: "Submitted", sortable: true, render: (r) =>
+            new Date(r.created_at).toLocaleDateString() },
+        ]}
+        data={data}
+        keyField="id"
+        loading={loading}
+        emptyMessage="No projects submitted yet."
+        actions={(row) => (
+          <button onClick={() => setDeleteTarget(row)} title="Delete"
+            style={{ background: "none", border: "none", color: "#888888", cursor: "pointer", padding: "4px", borderRadius: "5px" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#888888"; e.currentTarget.style.backgroundColor = "transparent"; }}
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+      />
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Project"
+        message={`Delete "${deleteTarget?.name}"? Votes will also be removed.`}
+        loading={deleting}
+      />
+    </div>
+  );
+}

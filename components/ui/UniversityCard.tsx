@@ -30,7 +30,7 @@ export function UniversityCard({ university }: UniversityCardProps) {
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
-      {/* Logo placeholder */}
+      {/* Logo */}
       <div style={{
         width: "48px",
         height: "48px",
@@ -44,8 +44,18 @@ export function UniversityCard({ university }: UniversityCardProps) {
         fontWeight: 900,
         color: "#ffba08",
         fontFamily: "var(--font-fraunces), Georgia, serif",
+        overflow: "hidden",
+        flexShrink: 0,
       }}>
-        {university.name.charAt(0)}
+        {university.logo_url ? (
+          <img
+            src={university.logo_url}
+            alt={`${university.name} logo`}
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        ) : (
+          university.name.charAt(0)
+        )}
       </div>
 
       {/* Info */}

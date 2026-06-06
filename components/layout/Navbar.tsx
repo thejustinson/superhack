@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
-import { useUser } from "@/contexts/AuthContext";
+import { Menu, X, User, LogOut, LayoutDashboard, Shield } from "lucide-react";
+import { useUser } from "@/context/AuthContext";
+
 
 const NAV_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
@@ -111,6 +112,18 @@ export function Navbar({ onAuthOpen }: NavbarProps) {
                     >
                       <LayoutDashboard size={14} style={{ color: "#888888" }} /> Dashboard
                     </Link>
+                    {profile?.is_admin && (
+                      <Link href="/admin" onClick={() => setUserMenuOpen(false)} style={{
+                        display: "flex", alignItems: "center", gap: "10px",
+                        padding: "10px 14px", borderRadius: "7px", color: "#ffba08",
+                        fontSize: "0.875rem", textDecoration: "none", transition: "background 0.15s",
+                      }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,186,8,0.08)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <Shield size={14} /> Admin
+                      </Link>
+                    )}
                     <button onClick={() => { signOut(); setUserMenuOpen(false); }} style={{
                       display: "flex", alignItems: "center", gap: "10px", width: "100%",
                       padding: "10px 14px", borderRadius: "7px", color: "#f87171",

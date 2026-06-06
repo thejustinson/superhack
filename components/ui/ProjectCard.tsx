@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ChevronUp, ArrowUpRight } from "lucide-react";
 import { Badge } from "./Badge";
 import { upvoteProject } from "@/lib/projects";
-import { useUser } from "@/contexts/AuthContext";
+import { useUser } from "@/context/AuthContext";
 import type { ProjectWithDetails } from "@/lib/supabase";
 
 interface ProjectCardProps {

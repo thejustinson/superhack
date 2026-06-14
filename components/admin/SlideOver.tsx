@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
@@ -54,7 +54,7 @@ export function SlideOver({ open, onClose, title, children, width = 520 }: Slide
           flexShrink: 0,
         }}>
           <h2 style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
+            fontFamily: "DM Sans, system-ui, sans-serif",
             fontSize: "1.125rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
           }}>
             {title}

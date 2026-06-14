@@ -1,21 +1,25 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, ExternalLink, Award } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { DataTable } from "@/components/admin/DataTable";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { WinnerModal } from "@/components/admin/WinnerModal";
 
 interface ProjectRow {
   id: string;
   name: string;
+  project_slug: string | null;
   description: string | null;
   github_url: string | null;
   live_url: string | null;
   upvote_count: number;
   created_at: string;
-  profiles: { full_name: string | null } | null;
-  cohorts: { title: string; universities: { name: string } | null } | null;
+  status: string;
+  prize_place: string | null;
+  profiles: { full_name: string | null; username: string | null } | null;
+  cohorts: { title: string; slug: string; universities: { name: string; slug: string } | null } | null;
 }
 
 export default function AdminProjectsPage() {
@@ -23,12 +27,17 @@ export default function AdminProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<ProjectRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [winnerTarget, setWinnerTarget] = useState<ProjectRow | null>(null);
 
   async function load() {
     setLoading(true);
     const { data: rows } = await supabase
       .from("projects")
-      .select("*, profiles(full_name), cohorts(title, universities(name))")
+      .select(`
+        *,
+        profiles!user_id (full_name, username),
+        cohorts (title, slug, universities (name, slug))
+      `)
       .order("created_at", { ascending: false });
     setData((rows as any) ?? []);
     setLoading(false);
@@ -49,7 +58,7 @@ export default function AdminProjectsPage() {
     <div>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{
-          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontFamily: "DM Sans, system-ui, sans-serif",
           fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
         }}>Projects</h1>
         <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
@@ -60,11 +69,18 @@ export default function AdminProjectsPage() {
       <DataTable
         columns={[
           { key: "name", label: "Project", sortable: true },
-          { key: "profiles", label: "Builder", render: (r) => r.profiles?.full_name ?? "—" },
-          { key: "cohorts", label: "Hackathon", render: (r) => r.cohorts?.title ?? "—" },
-          { key: "cohorts", label: "University", render: (r) => r.cohorts?.universities?.name ?? "—" },
+          { key: "profiles", label: "Builder", render: (r) => r.profiles?.full_name ?? "â€”" },
+          { key: "cohorts", label: "Hackathon", render: (r) => r.cohorts?.title ?? "â€”" },
+          { key: "cohorts", label: "University", render: (r) => r.cohorts?.universities?.name ?? "â€”" },
           { key: "upvote_count", label: "Votes", sortable: true, render: (r) => (
             <span style={{ fontWeight: 600, color: "#ffba08" }}>{r.upvote_count}</span>
+          )},
+          { key: "status", label: "Status", render: (r) => (
+            r.status === "winner" ? (
+              <span style={{ color: "#ffba08", fontWeight: 600 }}>Winner ({r.prize_place})</span>
+            ) : (
+              <span style={{ color: "#888888" }}>Submitted</span>
+            )
           )},
           { key: "github_url", label: "Links", render: (r) => (
             <div style={{ display: "flex", gap: "6px" }}>
@@ -96,13 +112,22 @@ export default function AdminProjectsPage() {
         loading={loading}
         emptyMessage="No projects submitted yet."
         actions={(row) => (
-          <button onClick={() => setDeleteTarget(row)} title="Delete"
-            style={{ background: "none", border: "none", color: "#888888", cursor: "pointer", padding: "4px", borderRadius: "5px" }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#888888"; e.currentTarget.style.backgroundColor = "transparent"; }}
-          >
-            <Trash2 size={14} />
-          </button>
+          <div style={{ display: "flex", gap: "4px" }}>
+            <button onClick={() => setWinnerTarget(row)} title="Manage Winner Status"
+              style={{ background: "none", border: "none", color: "#888888", cursor: "pointer", padding: "4px", borderRadius: "5px" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#ffba08"; e.currentTarget.style.backgroundColor = "rgba(255,186,8,0.08)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#888888"; e.currentTarget.style.backgroundColor = "transparent"; }}
+            >
+              <Award size={14} />
+            </button>
+            <button onClick={() => setDeleteTarget(row)} title="Delete"
+              style={{ background: "none", border: "none", color: "#888888", cursor: "pointer", padding: "4px", borderRadius: "5px" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#888888"; e.currentTarget.style.backgroundColor = "transparent"; }}
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         )}
       />
 
@@ -114,6 +139,14 @@ export default function AdminProjectsPage() {
         message={`Delete "${deleteTarget?.name}"? Votes will also be removed.`}
         loading={deleting}
       />
+
+      <WinnerModal
+        open={!!winnerTarget}
+        onClose={() => setWinnerTarget(null)}
+        project={winnerTarget}
+        onConfirm={load}
+      />
     </div>
   );
 }
+

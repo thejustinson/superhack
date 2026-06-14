@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { getUniversitiesWithCohortCounts } from "@/lib/universities";
@@ -67,7 +67,7 @@ export default function UniversitiesPage() {
               }}>
                 Network
               </span>
-              <h1 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "3.5rem", letterSpacing: "-0.02em", margin: "0", lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900, fontSize: "3.5rem", letterSpacing: "-0.02em", margin: "0", lineHeight: 1.1 }}>
                 Universities
               </h1>
             </div>
@@ -106,11 +106,20 @@ export default function UniversitiesPage() {
               variants={stagger}
               initial="hidden"
               animate="show"
-              style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             >
               {filteredUnis.map((uni) => (
                 <motion.div key={uni.id} variants={fadeUp}>
-                  <UniversityCard university={uni} />
+                  <UniversityCard
+                    id={uni.id}
+                    name={uni.name}
+                    slug={uni.slug}
+                    city={uni.city}
+                    state={uni.state}
+                    logo_url={uni.logo_url}
+                    cohort_count={uni.cohort_count}
+                    has_active_cohort={uni.last_cohort?.status === "active"}
+                  />
                 </motion.div>
               ))}
             </motion.div>
@@ -122,3 +131,4 @@ export default function UniversitiesPage() {
     </>
   );
 }
+

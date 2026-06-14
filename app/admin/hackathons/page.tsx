@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -7,6 +7,7 @@ import type { Cohort, University } from "@/lib/supabase";
 import { DataTable } from "@/components/admin/DataTable";
 import { SlideOver } from "@/components/admin/SlideOver";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { ScopeToggle } from "@/components/admin/ScopeToggle";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
@@ -18,6 +19,9 @@ const EMPTY = {
   start_date: "" as string | null,
   end_date: "" as string | null,
   prize_pool: {} as any,
+  scope: "university" as "university" | "faculty",
+  faculty_name: "" as string | null,
+  faculty_logo_url: "" as string | null,
 };
 
 function toSlug(s: string) {
@@ -82,6 +86,9 @@ export default function AdminHackathonsPage() {
       start_date: row.start_date ?? "",
       end_date: row.end_date ?? "",
       prize_pool: row.prize_pool ?? {},
+      scope: (row.scope as "university" | "faculty") ?? "university",
+      faculty_name: row.faculty_name ?? "",
+      faculty_logo_url: row.faculty_logo_url ?? "",
     });
     setError(""); setSlideOpen(true);
   }
@@ -107,6 +114,9 @@ export default function AdminHackathonsPage() {
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       prize_pool: form.prize_pool,
+      scope: form.scope,
+      faculty_name: form.scope === "faculty" ? (form.faculty_name || null) : null,
+      faculty_logo_url: form.scope === "faculty" ? (form.faculty_logo_url || null) : null,
     };
     try {
       if (editing) {
@@ -143,7 +153,7 @@ export default function AdminHackathonsPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
           <h1 style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
+            fontFamily: "DM Sans, system-ui, sans-serif",
             fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
           }}>Hackathons</h1>
           <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
@@ -158,12 +168,12 @@ export default function AdminHackathonsPage() {
       <DataTable
         columns={[
           { key: "title", label: "Title", sortable: true },
-          { key: "university_id", label: "University", render: (r: any) => r.universities?.name ?? "—" },
+          { key: "university_id", label: "University", render: (r: any) => r.universities?.name ?? "â€”" },
           { key: "status", label: "Status", render: (r) => (
             <Badge variant={statusVariant[r.status] ?? "muted"}>{r.status}</Badge>
           )},
-          { key: "start_date", label: "Start", render: (r) => r.start_date ? new Date(r.start_date).toLocaleDateString() : "—" },
-          { key: "end_date", label: "End", render: (r) => r.end_date ? new Date(r.end_date).toLocaleDateString() : "—" },
+          { key: "start_date", label: "Start", render: (r) => r.start_date ? new Date(r.start_date).toLocaleDateString() : "â€”" },
+          { key: "end_date", label: "End", render: (r) => r.end_date ? new Date(r.end_date).toLocaleDateString() : "â€”" },
         ]}
         data={data}
         keyField="id"
@@ -198,7 +208,7 @@ export default function AdminHackathonsPage() {
               onChange={(e) => set("university_id", e.target.value)}
               style={{ ...inputStyle, cursor: "pointer" }}
             >
-              <option value="">Select university…</option>
+              <option value="">Select universityâ€¦</option>
               {unis.map((u) => (
                 <option key={u.id} value={u.id}>{u.name}</option>
               ))}
@@ -209,7 +219,7 @@ export default function AdminHackathonsPage() {
             <input
               style={inputStyle} value={form.title}
               onChange={(e) => set("title", e.target.value)}
-              placeholder="Superhack 2025 — Lagos"
+              placeholder="Superhack 2025 â€” Lagos"
             />
           </div>
           <div>
@@ -251,12 +261,52 @@ export default function AdminHackathonsPage() {
             </div>
           </div>
 
+          {/* Scope toggle */}
+          <div>
+            <label style={labelStyle}>Scope</label>
+            <ScopeToggle
+              value={form.scope}
+              onChange={(val) => setForm((f: any) => ({ ...f, scope: val }))}
+            />
+          </div>
+
+          {/* Faculty fields */}
+          {form.scope === "faculty" && (
+            <>
+              <div>
+                <label style={labelStyle}>Faculty name</label>
+                <input
+                  style={inputStyle} value={form.faculty_name ?? ""}
+                  onChange={(e) => set("faculty_name", e.target.value)}
+                  placeholder="Faculty of Engineering"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Faculty logo URL</label>
+                <input
+                  style={inputStyle} value={form.faculty_logo_url ?? ""}
+                  onChange={(e) => set("faculty_logo_url", e.target.value)}
+                  placeholder="https://â€¦"
+                />
+                {form.faculty_logo_url && (
+                  <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "10px" }}>
+                    <img src={form.faculty_logo_url} alt="Preview"
+                      style={{ width: "40px", height: "40px", objectFit: "contain", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)" }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                    <span style={{ fontSize: "0.75rem", color: "#888888" }}>Preview</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
           {error && <p style={{ color: "#f87171", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
 
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
             <Button variant="ghost" size="sm" onClick={() => setSlideOpen(false)} disabled={saving}>Cancel</Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Saving…" : editing ? "Save Changes" : "Create Hackathon"}
+              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create Hackathon"}
             </Button>
           </div>
         </div>
@@ -273,3 +323,4 @@ export default function AdminHackathonsPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -120,7 +120,7 @@ export default function AdminUniversitiesPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
           <h1 style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
+            fontFamily: "DM Sans, system-ui, sans-serif",
             fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
           }}>Universities</h1>
           <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
@@ -138,9 +138,9 @@ export default function AdminUniversitiesPage() {
           { key: "slug", label: "Slug", sortable: true, render: (r) => (
             <code style={{ fontSize: "0.8rem", color: "#888888" }}>{r.slug}</code>
           )},
-          { key: "city", label: "City", sortable: true, render: (r) => r.city ?? "—" },
-          { key: "state", label: "State", render: (r) => r.state ?? "—" },
-          { key: "email_domain", label: "Email Domain", render: (r) => r.email_domain ?? "—" },
+          { key: "city", label: "City", sortable: true, render: (r) => r.city ?? "â€”" },
+          { key: "state", label: "State", render: (r) => r.state ?? "â€”" },
+          { key: "email_domain", label: "Email Domain", render: (r) => r.email_domain ?? "â€”" },
         ]}
         data={data}
         keyField="id"
@@ -241,7 +241,7 @@ export default function AdminUniversitiesPage() {
               style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
               value={form.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="Brief description…"
+              placeholder="Brief descriptionâ€¦"
             />
           </div>
 
@@ -254,7 +254,7 @@ export default function AdminUniversitiesPage() {
               Cancel
             </Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Saving…" : editing ? "Save Changes" : "Create University"}
+              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create University"}
             </Button>
           </div>
         </div>
@@ -271,3 +271,4 @@ export default function AdminUniversitiesPage() {
     </div>
   );
 }
+

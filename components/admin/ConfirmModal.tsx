@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -52,7 +52,7 @@ export function ConfirmModal({
           </div>
           <div>
             <h3 style={{
-              fontFamily: "var(--font-fraunces), Georgia, serif",
+              fontFamily: "DM Sans, system-ui, sans-serif",
               fontSize: "1rem", fontWeight: 700, color: "#f0f0f0", margin: "0 0 6px",
             }}>
               {title}

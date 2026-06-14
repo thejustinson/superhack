@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/Badge";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { Loader2, Calendar, Trophy, Send, Award, Bell } from "lucide-react";
 import Link from "next/link";
+import { CountdownTimer } from "@/components/ui/CountdownTimer";
+import { projectPath } from "@/lib/utils";
 
 export default function HackathonDetailPage() {
   const params = useParams();
@@ -31,6 +33,13 @@ export default function HackathonDetailPage() {
   const loadHackathonData = async () => {
     setLoading(true);
     try {
+      // Sync cohort status
+      try {
+        await supabase.rpc("sync_cohort_status");
+      } catch (err) {
+        console.error("Failed to sync cohort status:", err);
+      }
+
       const data = await getCohortBySlug(slug);
       if (!data) {
         router.push("/hackathons");
@@ -43,18 +52,33 @@ export default function HackathonDetailPage() {
         .from("projects")
         .select(`
           *,
-          profiles (
-            id,
+          profiles!user_id (
             full_name,
-            university_id
+            username
+          ),
+          cohorts (
+            title,
+            slug,
+            universities (name, slug)
           )
         `)
         .eq("cohort_id", data.id);
 
-      // Format projects to match ProjectWithDetails
+      // Format projects to match ProjectCardProps
       const formattedProjs = (projs || []).map((p: any) => ({
         ...p,
-        cohorts: data
+        builder: {
+          full_name: p.profiles?.full_name || "Anonymous",
+          username: p.profiles?.username || "",
+        },
+        cohort: {
+          title: data.title,
+          slug: data.slug,
+        },
+        university: data.universities ? {
+          name: data.universities.name,
+          slug: data.universities.slug,
+        } : null,
       }));
 
       setProjects(formattedProjs);
@@ -65,7 +89,7 @@ export default function HackathonDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !cohort) {
     return (
       <>
         <Navbar />
@@ -105,15 +129,30 @@ export default function HackathonDetailPage() {
             borderRadius: "14px", padding: "40px", marginBottom: "48px"
           }}>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "24px", marginBottom: "24px" }}>
-              <div>
-                <span style={{ fontSize: "0.875rem", color: "#ffba08", fontWeight: 600, display: "block", marginBottom: "6px" }}>
-                  {cohort.universities?.name}
-                </span>
-                <h1 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "2.5rem", color: "#f0f0f0", margin: 0, lineHeight: 1.2 }}>
+            <div>
+                {cohort.scope === "faculty" && cohort.faculty_name ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                    {cohort.faculty_logo_url && (
+                      <img src={cohort.faculty_logo_url} alt={cohort.faculty_name}
+                        style={{ width: "24px", height: "24px", objectFit: "contain", borderRadius: "4px" }}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    )}
+                    <span style={{ fontSize: "0.875rem", color: "#ffba08", fontWeight: 600 }}>
+                      {cohort.faculty_name} &middot; {cohort.universities?.name}
+                    </span>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: "0.875rem", color: "#ffba08", fontWeight: 600, display: "block", marginBottom: "6px" }}>
+                    {cohort.universities?.name}
+                  </span>
+                )}
+                <h1 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900, fontSize: "2.5rem", color: "#f0f0f0", margin: 0, lineHeight: 1.2 }}>
                   {cohort.title}
                 </h1>
               </div>
               <Badge variant={statusVariant}>{cohort.status}</Badge>
+
             </div>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", color: "#888888", fontSize: "0.875rem" }}>
@@ -130,9 +169,29 @@ export default function HackathonDetailPage() {
             </div>
           </div>
 
+          {/* Countdown Banner */}
+          <div style={{ marginBottom: "48px" }}>
+            {cohort.status === "past" ? (
+              <div style={{
+                backgroundColor: "#111318",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "12px",
+                padding: "24px",
+                textAlign: "center",
+                color: "#888888",
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontSize: "0.9375rem"
+              }}>
+                This hackathon has ended on {new Date(cohort.end_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.
+              </div>
+            ) : (
+              <CountdownTimer startDate={cohort.start_date} endDate={cohort.end_date} />
+            )}
+          </div>
+
           {/* Prize Breakdown Section */}
           <section style={{ marginBottom: "56px" }}>
-            <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Prize Breakdown</h2>
+            <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Prize Breakdown</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
               {[
                 { place: "1st Place", prize: "$100", label: "Best Overall Program" },
@@ -147,7 +206,7 @@ export default function HackathonDetailPage() {
                 }}>
                   <Award size={20} style={{ color: idx === 0 ? "#ffba08" : "#888888", margin: "0 auto 12px" }} />
                   <span style={{ fontSize: "0.75rem", color: "#888888", textTransform: "uppercase", letterSpacing: "0.05em", display: "block" }}>{p.place}</span>
-                  <span style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "2rem", fontWeight: 900, color: idx === 0 ? "#ffba08" : "#f0f0f0", display: "block", margin: "6px 0" }}>{p.prize}</span>
+                  <span style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "2rem", fontWeight: 900, color: idx === 0 ? "#ffba08" : "#f0f0f0", display: "block", margin: "6px 0" }}>{p.prize}</span>
                   <span style={{ fontSize: "0.8125rem", color: "#888888" }}>{p.label}</span>
                 </div>
               ))}
@@ -166,7 +225,7 @@ export default function HackathonDetailPage() {
                       justifyContent: "space-between", alignItems: "center", gap: "20px"
                     }}>
                       <div>
-                        <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px" }}>You are eligible to submit!</h3>
+                        <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px" }}>You are eligible to submit!</h3>
                         <p style={{ fontSize: "0.875rem", color: "#888888", margin: 0 }}>Submissions are open for builders from {cohort.universities?.name}.</p>
                       </div>
                       <Link href="/submit" style={{
@@ -184,7 +243,7 @@ export default function HackathonDetailPage() {
                       justifyContent: "space-between", alignItems: "center", gap: "20px"
                     }}>
                       <div style={{ flex: 1, minWidth: "260px" }}>
-                        <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px", display: "flex", alignItems: "center", gap: "8px" }}>
                           <Bell size={18} style={{ color: "#ffba08" }} /> This cohort is restricted
                         </h3>
                         <p style={{ fontSize: "0.875rem", color: "#888888", margin: 0, lineHeight: 1.5 }}>
@@ -207,7 +266,7 @@ export default function HackathonDetailPage() {
                     justifyContent: "space-between", alignItems: "center", gap: "20px"
                   }}>
                     <div>
-                      <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px" }}>Verify your student email</h3>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px" }}>Verify your student email</h3>
                       <p style={{ fontSize: "0.875rem", color: "#888888", margin: 0 }}>You must verify your university email domain on your dashboard before submitting projects.</p>
                     </div>
                     <Link href="/dashboard" style={{
@@ -226,7 +285,7 @@ export default function HackathonDetailPage() {
                   justifyContent: "space-between", alignItems: "center", gap: "20px"
                 }}>
                   <div>
-                    <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px" }}>Join the Hackathon</h3>
+                    <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px" }}>Join the Hackathon</h3>
                     <p style={{ fontSize: "0.875rem", color: "#888888", margin: 0 }}>Log in to view submission requirements or register for this cohort.</p>
                   </div>
                   <Link href="/auth" style={{
@@ -243,13 +302,13 @@ export default function HackathonDetailPage() {
 
           {/* Submissions Section */}
           <section>
-            <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Submitted Projects</h2>
+            <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Submitted Projects</h2>
             {projects.length === 0 ? (
               <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "56px 24px", textAlign: "center", color: "#888888" }}>
                 No projects submitted to this cohort yet.
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {projects.map((project) => (
                   <ProjectCard key={project.id} project={project} />
                 ))}

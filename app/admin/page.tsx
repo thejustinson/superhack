@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { University, Users, Zap, FolderKanban, Lightbulb, ThumbsUp } from "lucide-react";
@@ -100,7 +100,7 @@ export default function AdminDashboardPage() {
     <div>
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
-          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontFamily: "DM Sans, system-ui, sans-serif",
           fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
         }}>
           Dashboard
@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
         padding: "24px",
       }}>
         <h2 style={{
-          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontFamily: "DM Sans, system-ui, sans-serif",
           fontSize: "1rem", fontWeight: 700, color: "#f0f0f0",
           margin: "0 0 20px",
         }}>
@@ -174,3 +174,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

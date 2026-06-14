@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -141,7 +141,7 @@ export default function AuthPage() {
                   <Mail size={20} style={{ color: "#ffba08" }} />
                 </div>
                 <h1 style={{
-                  fontFamily: "var(--font-fraunces), serif", fontWeight: 900,
+                  fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900,
                   fontSize: "1.75rem", letterSpacing: "-0.02em", color: "#f0f0f0",
                   margin: "0 0 8px"
                 }}>
@@ -209,7 +209,7 @@ export default function AuthPage() {
             >
               <div style={{ marginBottom: "28px" }}>
                 <h1 style={{
-                  fontFamily: "var(--font-fraunces), serif", fontWeight: 900,
+                  fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900,
                   fontSize: "1.75rem", letterSpacing: "-0.02em", color: "#f0f0f0",
                   margin: "0 0 8px"
                 }}>
@@ -288,7 +288,7 @@ export default function AuthPage() {
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#f0f0f0")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#888888")}
                   >
-                    ← Use a different email
+                    â† Use a different email
                   </button>
                 </div>
               </form>
@@ -299,3 +299,4 @@ export default function AuthPage() {
     </main>
   );
 }
+

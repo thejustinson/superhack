@@ -1,112 +1,141 @@
+﻿"use client";
+
 import Link from "next/link";
-import { MapPin } from "lucide-react";
-import type { University } from "@/lib/supabase";
+import { Calendar } from "lucide-react";
+import { motion } from "framer-motion";
+import { InitialsAvatar } from "./InitialsAvatar";
 
 interface UniversityCardProps {
-  university: University & { cohort_count: number; last_cohort: { end_date: string | null; status: string } | null };
+  id: string;
+  name: string;
+  slug: string;
+  city?: string;
+  state?: string;
+  logo_url?: string;
+  cohort_count: number;
+  has_active_cohort: boolean;
 }
 
-export function UniversityCard({ university }: UniversityCardProps) {
+export function UniversityCard({
+  id,
+  name,
+  slug,
+  city,
+  state,
+  logo_url,
+  cohort_count,
+  has_active_cohort,
+}: UniversityCardProps) {
   return (
-    <Link
-      href={`/universities/${university.slug}`}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        backgroundColor: "#111318",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: "10px",
-        padding: "24px",
-        textDecoration: "none",
-        transition: "border-color 0.2s, transform 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)";
-        e.currentTarget.style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
-    >
-      {/* Logo */}
-      <div style={{
-        width: "48px",
-        height: "48px",
-        borderRadius: "10px",
-        backgroundColor: "rgba(255,186,8,0.1)",
-        border: "1px solid rgba(255,186,8,0.2)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "1.25rem",
-        fontWeight: 900,
-        color: "#ffba08",
-        fontFamily: "var(--font-fraunces), Georgia, serif",
-        overflow: "hidden",
-        flexShrink: 0,
-      }}>
-        {university.logo_url ? (
-          <img
-            src={university.logo_url}
-            alt={`${university.name} logo`}
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
-          />
-        ) : (
-          university.name.charAt(0)
-        )}
-      </div>
+    <Link href={`/universities/${slug}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          backgroundColor: "#111318",
+          border: "1px solid rgba(255, 255, 255, 0.07)",
+          borderRadius: "12px",
+          padding: "1.25rem",
+          cursor: "pointer",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          minHeight: "180px",
+          transition: "border-color 200ms ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "rgba(255, 186, 8, 0.3)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.07)";
+        }}
+      >
+        {/* Top: Logo + Active Badge */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+          {logo_url ? (
+            <img
+              src={logo_url}
+              alt={name}
+              style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+            />
+          ) : (
+            <InitialsAvatar name={name} size={48} />
+          )}
 
-      {/* Info */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-        <span style={{
-          fontFamily: "var(--font-fraunces), Georgia, serif",
-          fontWeight: 700,
-          fontSize: "1rem",
-          color: "#f0f0f0",
-          lineHeight: 1.3,
-        }}>
-          {university.name}
-        </span>
-        {university.city && (
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "0.8125rem", color: "#888888" }}>
-            <MapPin size={12} />
-            {university.city}{university.state && `, ${university.state}`}
-          </span>
-        )}
-      </div>
+          {has_active_cohort && (
+            <span
+              style={{
+                backgroundColor: "rgba(255, 186, 8, 0.1)",
+                color: "#ffba08",
+                border: "1px solid rgba(255, 186, 8, 0.3)",
+                borderRadius: "999px",
+                padding: "4px 10px",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Active
+            </span>
+          )}
+        </div>
 
-      {/* Stats */}
-      <div style={{
-        display: "flex",
-        gap: "16px",
-        paddingTop: "12px",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-      }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-          <span style={{ fontSize: "1rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "var(--font-fraunces)" }}>
-            {university.cohort_count}
-          </span>
-          <span style={{ fontSize: "0.6875rem", color: "#888888", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {university.cohort_count === 1 ? "cohort" : "cohorts"}
+        {/* Middle: Name + City/State */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px", margin: "14px 0", minWidth: 0, width: "100%" }}>
+          <h4
+            style={{
+              fontFamily: "DM Sans, system-ui, sans-serif",
+              fontSize: "1.05rem",
+              fontWeight: 700,
+              color: "#f0f0f0",
+              margin: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {name}
+          </h4>
+          {(city || state) && (
+            <span
+              style={{
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontSize: "0.8125rem",
+                color: "#888888",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {city}
+              {city && state ? ", " : ""}
+              {state}
+            </span>
+          )}
+        </div>
+
+        {/* Bottom: Cohort Count */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontSize: "0.75rem",
+            color: "#888888",
+            borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+            paddingTop: "12px",
+            marginTop: "auto",
+            width: "100%",
+          }}
+        >
+          <Calendar size={13} />
+          <span>
+            {cohort_count} {cohort_count === 1 ? "cohort" : "cohorts"}
           </span>
         </div>
-        {university.last_cohort && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <span style={{
-              fontSize: "0.6875rem",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: university.last_cohort.status === "active" ? "#14F195" : "#888888",
-            }}>
-              {university.last_cohort.status}
-            </span>
-            <span style={{ fontSize: "0.6875rem", color: "#888888" }}>status</span>
-          </div>
-        )}
-      </div>
+      </motion.div>
     </Link>
   );
 }

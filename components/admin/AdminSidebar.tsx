@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, University, Zap, Lightbulb,
   FolderKanban, Users, ChevronLeft, ChevronRight,
-  Shield,
+  Shield, ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/ideas", label: "Ideas", icon: Lightbulb },
   { href: "/admin/projects", label: "Projects", icon: FolderKanban },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/applications", label: "Applications", icon: ClipboardList },
 ];
 
 export function AdminSidebar() {
@@ -55,7 +56,7 @@ export function AdminSidebar() {
           <Shield size={20} style={{ color: "#ffba08", flexShrink: 0 }} />
           {!collapsed && (
             <span style={{
-              fontFamily: "var(--font-fraunces), Georgia, serif",
+              fontFamily: "DM Sans, system-ui, sans-serif",
               fontWeight: 900, fontSize: "0.9375rem", color: "#f0f0f0",
               whiteSpace: "nowrap",
             }}>

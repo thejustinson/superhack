@@ -51,6 +51,7 @@ create table if not exists projects (
   live_url        text,
   solana_address  text,
   upvote_count    int default 0,
+  category        text,
   created_at      timestamptz default now()
 );
 
@@ -183,6 +184,30 @@ end;
 $$;
 
 -- ============================================================
+-- Trigger: automatically maintain projects.upvote_count on votes insert/delete
+-- ============================================================
+create or replace function public.handle_project_vote()
+returns trigger language plpgsql security definer as $$
+begin
+  if tg_op = 'INSERT' then
+    update public.projects
+    set upvote_count = upvote_count + 1
+    where id = new.project_id;
+  elsif tg_op = 'DELETE' then
+    update public.projects
+    set upvote_count = greatest(0, upvote_count - 1)
+    where id = old.project_id;
+  end if;
+  return null;
+end;
+$$;
+
+drop trigger if exists on_project_vote on public.votes;
+create trigger on_project_vote
+  after insert or delete on public.votes
+  for each row execute procedure public.handle_project_vote();
+
+-- ============================================================
 -- Seed Data — Sample Nigerian Universities
 -- ============================================================
 insert into universities (name, slug, city, state, email_domain, description) values
@@ -196,3 +221,25 @@ on conflict (slug) do nothing;
 -- Add columns migration in case table already existed
 alter table universities add column if not exists email_domain text;
 alter table universities add column if not exists description text;
+alter table projects add column if not exists category text;
+
+-- ============================================================
+-- Function: auto-updates cohort status based on dates
+-- ============================================================
+create or replace function sync_cohort_status()
+returns void as $$
+begin
+  update cohorts set status = 'active'
+  where now() >= start_date::timestamptz
+  and now() < end_date::timestamptz
+  and status != 'active';
+
+  update cohorts set status = 'past'
+  where now() >= end_date::timestamptz
+  and status != 'past';
+end;
+$$ language plpgsql;
+
+-- Schedule cron job every hour if cron extension is enabled
+-- select cron.schedule('sync-cohort-status', '0 * * * *', 'select sync_cohort_status()');
+

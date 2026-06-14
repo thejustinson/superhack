@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -9,8 +9,10 @@ import { Footer } from "@/components/layout/Footer";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { Badge } from "@/components/ui/Badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, MapPin, Calendar, Trophy, Medal, ArrowRight, Layers, FileCode } from "lucide-react";
+import { Loader2, MapPin, Calendar, Trophy, Medal, ArrowRight, Layers, FileCode, Users } from "lucide-react";
 import Link from "next/link";
+import { CountdownTimer } from "@/components/ui/CountdownTimer";
+import { projectPath } from "@/lib/utils";
 
 type Tab = "overview" | "projects" | "cohorts" | "winners";
 
@@ -22,6 +24,7 @@ export default function UniversityDetailPage() {
   const [uni, setUni] = useState<any>(null);
   const [cohorts, setCohorts] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [builderCount, setBuilderCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedCohortId, setSelectedCohortId] = useState<string>("all");
@@ -35,6 +38,13 @@ export default function UniversityDetailPage() {
   const loadUniversityData = async () => {
     setLoading(true);
     try {
+      // Sync cohort status
+      try {
+        await supabase.rpc("sync_cohort_status");
+      } catch (err) {
+        console.error("Failed to sync cohort status:", err);
+      }
+
       const university = await getUniversityBySlug(slug);
       if (!university) {
         router.push("/universities");
@@ -60,26 +70,42 @@ export default function UniversityDetailPage() {
           .from("projects")
           .select(`
             *,
-            users (
-              id,
+            profiles!user_id (
               full_name,
-              university_id
+              username
+            ),
+            cohorts (
+              title,
+              slug,
+              universities (name, slug)
             )
           `)
-          .in("cohort_id", cohortIds);
+          .in("cohort_id", cohortIds)
+          .order("upvote_count", { ascending: false });
 
-        // Format projects to include cohort & university details
-        const formatted = (uniProjects || []).map((p) => {
+        const formatted = (uniProjects || []).map((p: any) => {
           const matchedCohort = cohortsList.find((c) => c.id === p.cohort_id);
           return {
             ...p,
-            cohorts: {
-              ...matchedCohort,
-              universities: university
-            }
+            builder: {
+              full_name: p.profiles?.full_name || "Anonymous",
+              username: p.profiles?.username || "",
+            },
+            cohort: matchedCohort ? {
+              title: matchedCohort.title,
+              slug: matchedCohort.slug,
+            } : null,
+            university: university ? {
+              name: university.name,
+              slug: university.slug,
+            } : null,
           };
         });
         setProjects(formatted);
+
+        // Calculate builder count
+        const uniqueBuilders = new Set(formatted.map((p) => p.user_id)).size;
+        setBuilderCount(uniqueBuilders);
       }
     } catch (err) {
       console.error("Error loading university page data:", err);
@@ -142,7 +168,7 @@ export default function UniversityDetailPage() {
               backgroundColor: "rgba(255,186,8,0.12)", border: "1px solid rgba(255,186,8,0.2)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: "1.75rem", fontWeight: 900, color: "#ffba08",
-              fontFamily: "var(--font-fraunces), serif",
+              fontFamily: "DM Sans, system-ui, sans-serif",
               overflow: "hidden", flexShrink: 0,
             }}>
               {uni.logo_url ? (
@@ -156,15 +182,25 @@ export default function UniversityDetailPage() {
               )}
             </div>
             <div>
-              <h1 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "2.25rem", margin: "0 0 6px" }}>
+              <h1 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900, fontSize: "2.25rem", margin: "0 0 6px" }}>
                 {uni.name}
               </h1>
-              {uni.city && (
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888888", fontSize: "0.875rem" }}>
-                  <MapPin size={14} />
-                  <span>{uni.city}{uni.state && `, ${uni.state}`}</span>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px", color: "#888888", fontSize: "0.875rem" }}>
+                {uni.city && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <MapPin size={14} />
+                    <span>{uni.city}{uni.state && `, ${uni.state}`}</span>
+                  </div>
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Calendar size={14} />
+                  <span>{cohorts.length} {cohorts.length === 1 ? "cohort" : "cohorts"}</span>
                 </div>
-              )}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Users size={14} />
+                  <span>{builderCount} {builderCount === 1 ? "builder" : "builders"}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -200,56 +236,60 @@ export default function UniversityDetailPage() {
                 >
                   <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "32px" }}>
                     <div>
-                      <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", marginBottom: "12px" }}>About</h3>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "12px" }}>About</h3>
                       <p style={{ color: "#888888", lineHeight: 1.6, fontSize: "0.9375rem", margin: 0 }}>
                         {uni.description || `${uni.name} is a leading institution in ${uni.city}, hosting campus-wide Solana builder programs and technical cohorts.`}
                       </p>
                     </div>
 
                     <div>
-                      <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", marginBottom: "16px" }}>Active/Upcoming Program</h3>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "16px" }}>Active/Upcoming Program</h3>
                       
                       {activeCohort ? (
                         <div style={{
                           backgroundColor: "rgba(20,241,149,0.06)", border: "1px solid rgba(20,241,149,0.2)",
-                          borderRadius: "10px", padding: "28px", display: "flex", flexWrap: "wrap",
-                          justifyContent: "space-between", alignItems: "center", gap: "20px"
+                          borderRadius: "10px", padding: "28px", display: "flex", flexDirection: "column", gap: "20px"
                         }}>
-                          <div>
-                            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#14F195", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "4px" }}>
-                              Active Cohort
-                            </span>
-                            <h4 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px", color: "#f0f0f0" }}>{activeCohort.title}</h4>
-                            <span style={{ fontSize: "0.8125rem", color: "#888888" }}>Ends on {new Date(activeCohort.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+                            <div>
+                              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#14F195", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "4px" }}>
+                                Active Cohort
+                              </span>
+                              <h4 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px", color: "#f0f0f0" }}>{activeCohort.title}</h4>
+                              <span style={{ fontSize: "0.8125rem", color: "#888888" }}>Ends on {new Date(activeCohort.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            </div>
+                            <Link href={`/hackathons/${activeCohort.slug}`} style={{
+                              display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#ffba08",
+                              color: "#0b0c0f", fontWeight: 600, fontSize: "0.875rem", padding: "10px 20px",
+                              borderRadius: "8px", textDecoration: "none"
+                            }}>
+                              View hackathon <ArrowRight size={14} />
+                            </Link>
                           </div>
-                          <Link href={`/hackathons/${activeCohort.slug}`} style={{
-                            display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#ffba08",
-                            color: "#0b0c0f", fontWeight: 600, fontSize: "0.875rem", padding: "10px 20px",
-                            borderRadius: "8px", textDecoration: "none"
-                          }}>
-                            View hackathon <ArrowRight size={14} />
-                          </Link>
+                          <CountdownTimer startDate={activeCohort.start_date} endDate={activeCohort.end_date} />
                         </div>
                       ) : upcomingCohort ? (
                         <div style={{
                           backgroundColor: "rgba(255,186,8,0.06)", border: "1px solid rgba(255,186,8,0.2)",
-                          borderRadius: "10px", padding: "28px", display: "flex", flexWrap: "wrap",
-                          justifyContent: "space-between", alignItems: "center", gap: "20px"
+                          borderRadius: "10px", padding: "28px", display: "flex", flexDirection: "column", gap: "20px"
                         }}>
-                          <div>
-                            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ffba08", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "4px" }}>
-                              Upcoming Cohort
-                            </span>
-                            <h4 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: "0 0 6px", color: "#f0f0f0" }}>{upcomingCohort.title}</h4>
-                            <span style={{ fontSize: "0.8125rem", color: "#888888" }}>Starts on {new Date(upcomingCohort.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+                            <div>
+                              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ffba08", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "4px" }}>
+                                Upcoming Cohort
+                              </span>
+                              <h4 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: "0 0 6px", color: "#f0f0f0" }}>{upcomingCohort.title}</h4>
+                              <span style={{ fontSize: "0.8125rem", color: "#888888" }}>Starts on {new Date(upcomingCohort.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            </div>
+                            <Link href={`/hackathons/${upcomingCohort.slug}`} style={{
+                              display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#111318",
+                              color: "#ffba08", border: "1px solid rgba(255,186,8,0.3)", fontWeight: 600, fontSize: "0.875rem",
+                              padding: "10px 20px", borderRadius: "8px", textDecoration: "none"
+                            }}>
+                              Details
+                            </Link>
                           </div>
-                          <Link href={`/hackathons/${upcomingCohort.slug}`} style={{
-                            display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#111318",
-                            color: "#ffba08", border: "1px solid rgba(255,186,8,0.3)", fontWeight: 600, fontSize: "0.875rem",
-                            padding: "10px 20px", borderRadius: "8px", textDecoration: "none"
-                          }}>
-                            Details
-                          </Link>
+                          <CountdownTimer startDate={upcomingCohort.start_date} endDate={upcomingCohort.end_date} />
                         </div>
                       ) : (
                         <div style={{
@@ -280,7 +320,7 @@ export default function UniversityDetailPage() {
                   transition={{ duration: 0.18 }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-                    <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", margin: 0 }}>Projects</h3>
+                    <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", margin: 0 }}>Projects</h3>
                     
                     {cohorts.length > 0 && (
                       <select
@@ -301,10 +341,10 @@ export default function UniversityDetailPage() {
 
                   {filteredProjects.length === 0 ? (
                     <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "56px 24px", textAlign: "center", color: "#888888" }}>
-                      No projects submitted yet.
+                      No projects submitted yet for this university.
                     </div>
                   ) : (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {filteredProjects.map((p) => (
                         <ProjectCard key={p.id} project={p} />
                       ))}
@@ -321,7 +361,7 @@ export default function UniversityDetailPage() {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", marginBottom: "20px" }}>Cohorts History</h3>
+                  <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "20px" }}>Cohorts History</h3>
                   
                   {cohorts.length === 0 ? (
                     <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "40px", textAlign: "center", color: "#888888" }}>
@@ -336,10 +376,20 @@ export default function UniversityDetailPage() {
                           justifyContent: "space-between", alignItems: "center", gap: "16px"
                         }}>
                           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px" }}>
-                            <h4 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.1rem", margin: 0 }}>{cohort.title}</h4>
+                            <h4 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.1rem", margin: 0 }}>{cohort.title}</h4>
                             <Badge variant={cohort.status === "active" ? "status-active" : cohort.status === "upcoming" ? "status-upcoming" : "status-past"}>
                               {cohort.status}
                             </Badge>
+                            <span style={{
+                              fontSize: "0.6875rem", fontWeight: 600, letterSpacing: "0.08em",
+                              textTransform: "uppercase" as const,
+                              color: cohort.scope === "faculty" ? "#ffba08" : "#888888",
+                              backgroundColor: cohort.scope === "faculty" ? "rgba(255,186,8,0.1)" : "rgba(255,255,255,0.05)",
+                              border: `1px solid ${cohort.scope === "faculty" ? "rgba(255,186,8,0.25)" : "rgba(255,255,255,0.1)"}`,
+                              padding: "2px 9px", borderRadius: "999px",
+                            }}>
+                              {cohort.scope === "faculty" && cohort.faculty_name ? cohort.faculty_name : "University-wide"}
+                            </span>
                           </div>
 
                           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "32px" }}>
@@ -367,10 +417,46 @@ export default function UniversityDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.18 }}
+                  style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                 >
-                  <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.25rem", marginBottom: "20px" }}>Leaderboard Winners</h3>
+                  <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
 
-                  {winners.length === 0 ? (
+                  {activeCohort ? (
+                    <div style={{
+                      backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
+                      borderRadius: "12px", padding: "40px", display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center", gap: "20px", textAlign: "center"
+                    }}>
+                      <Trophy size={48} style={{ color: "#888888" }} />
+                      <div>
+                        <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
+                          Winners will be announced when the hackathon ends.
+                        </p>
+                        <p style={{ color: "#888888", fontSize: "0.875rem", margin: "0 0 16px" }}>
+                          The hackathon ends in:
+                        </p>
+                      </div>
+                      <div style={{ width: "100%", maxWidth: "400px" }}>
+                        <CountdownTimer startDate={activeCohort.start_date} endDate={activeCohort.end_date} />
+                      </div>
+                    </div>
+                  ) : upcomingCohort ? (
+                    <div style={{
+                      backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
+                      borderRadius: "12px", padding: "48px 24px", display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center", gap: "16px", textAlign: "center"
+                    }}>
+                      <Trophy size={48} style={{ color: "#888888" }} />
+                      <div>
+                        <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
+                          Winners will be announced when the hackathon ends.
+                        </p>
+                        <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0 }}>
+                          The hackathon hasn&apos;t started yet.
+                        </p>
+                      </div>
+                    </div>
+                  ) : winners.length === 0 ? (
                     <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "40px", textAlign: "center", color: "#888888" }}>
                       No winners announced yet. Get voting to set the leaderboards!
                     </div>
@@ -395,12 +481,12 @@ export default function UniversityDetailPage() {
                               </div>
                               <div>
                                 <span style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "#ffba08", fontWeight: 600 }}>{rankLabel} ({prizeAmount})</span>
-                                <h4 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.15rem", margin: "4px 0 0", color: "#f0f0f0" }}>{project.name}</h4>
-                                <span style={{ fontSize: "0.8125rem", color: "#888888" }}>by {project.users?.full_name || "Builder"}</span>
+                                <h4 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.15rem", margin: "4px 0 0", color: "#f0f0f0" }}>{project.name}</h4>
+                                <span style={{ fontSize: "0.8125rem", color: "#888888" }}>by {project.builder?.full_name || "Builder"}</span>
                               </div>
                             </div>
 
-                            <Link href={`/projects/${project.id}`} style={{
+                            <Link href={projectPath(project.builder?.username || "", project.project_slug || "")} style={{
                               display: "inline-flex", alignItems: "center", gap: "6px",
                               backgroundColor: "rgba(255,255,255,0.05)", color: "#f0f0f0", fontSize: "0.8125rem",
                               padding: "8px 16px", borderRadius: "6px", textDecoration: "none", fontWeight: 500

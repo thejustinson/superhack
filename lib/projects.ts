@@ -71,7 +71,7 @@ export async function submitProject(data: {
 
   const { data: project, error } = await supabase
     .from("projects")
-    .insert(payload)
+    .insert(payload as any)
     .select("id")
     .single();
   if (error) throw error;
@@ -95,12 +95,6 @@ export async function upvoteProject(projectId: string, userId: string): Promise<
     if (voteError.code === "23505") return;
     throw voteError;
   }
-
-  // Atomically increment count
-  const { error: countError } = await supabase.rpc("increment_upvote", {
-    project_id: projectId,
-  });
-  if (countError) throw countError;
 }
 
 export async function hasUserVoted(projectId: string, userId: string): Promise<boolean> {
@@ -113,3 +107,11 @@ export async function hasUserVoted(projectId: string, userId: string): Promise<b
     .maybeSingle();
   return !!data;
 }
+
+export function getProjectPath(username: string | null, projectSlug: string | null, fallbackId?: string): string {
+  if (username && projectSlug) {
+    return `/${username}/${projectSlug}`;
+  }
+  return `/projects/${fallbackId || ""}`;
+}
+

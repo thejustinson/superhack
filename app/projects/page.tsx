@@ -1,10 +1,13 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ChevronUp, Package } from "lucide-react";
+import { Package } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ProjectCard, ProjectCardSkeleton } from "@/components/ui/ProjectCard";
+import { supabase } from "@/lib/supabase";
+import { useUser } from "@/context/AuthContext";
 import Link from "next/link";
 
 const fadeUp = {
@@ -13,21 +16,6 @@ const fadeUp = {
 };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
-const stubProjects: {
-  id: number;
-  name: string;
-  builder: string;
-  school: string;
-  description: string;
-  upvotes: number;
-  link: string;
-}[] = [];
-
-async function upvoteProject(id: number) {
-  // TODO: wire to Supabase
-  console.log("Upvote project", id);
-}
-
 const containerStyle: React.CSSProperties = {
   maxWidth: "1152px",
   margin: "0 auto",
@@ -35,17 +23,76 @@ const containerStyle: React.CSSProperties = {
 };
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState(stubProjects);
-  const [upvoted, setUpvoted] = useState<Set<number>>(new Set());
+  const { user } = useUser();
+  const [projects, setProjects] = useState<any[]>([]);
+  const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  async function fetchProjectsAndVotes() {
+    setLoading(true);
+    try {
+      // 1. Sync cohort status
+      try {
+        await supabase.rpc("sync_cohort_status");
+      } catch (err) {
+        console.error("Failed to sync cohort status:", err);
+      }
 
-  async function handleUpvote(id: number) {
-    if (upvoted.has(id)) return;
-    await upvoteProject(id);
-    setUpvoted((prev) => new Set(prev).add(id));
-    setProjects((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, upvotes: p.upvotes + 1 } : p))
-    );
+      // 2. Fetch projects with profile and cohort/university relation
+      const { data: projData, error: projError } = await supabase
+        .from("projects")
+        .select(`
+          *,
+          profiles!user_id (full_name, username),
+          cohorts (
+            title,
+            slug,
+            universities (name, slug)
+          )
+        `)
+        .order("upvote_count", { ascending: false });
+
+      if (projError) throw projError;
+      
+      const formatted = (projData || []).map((p: any) => ({
+        ...p,
+        builder: {
+          full_name: p.profiles?.full_name || "Anonymous",
+          username: p.profiles?.username || "",
+        },
+        cohort: p.cohorts ? {
+          title: p.cohorts.title,
+          slug: p.cohorts.slug,
+        } : null,
+        university: p.cohorts?.universities ? {
+          name: p.cohorts.universities.name,
+          slug: p.cohorts.universities.slug,
+        } : null,
+      }));
+
+      setProjects(formatted);
+
+      // 2. Fetch user's votes if logged in
+      if (user) {
+        const { data: voteData, error: voteError } = await supabase
+          .from("votes")
+          .select("project_id")
+          .eq("user_id", user.id);
+
+        if (!voteError && voteData) {
+          setUserVotes(new Set(voteData.map((v) => v.project_id)));
+        }
+      }
+    } catch (err) {
+      console.error("Error loading projects:", err);
+    } finally {
+      setLoading(false);
+    }
   }
+
+  useEffect(() => {
+    fetchProjectsAndVotes();
+  }, [user]);
 
   return (
     <>
@@ -81,7 +128,7 @@ export default function ProjectsPage() {
               <motion.h1
                 variants={fadeUp}
                 style={{
-                  fontFamily: "var(--font-fraunces), Georgia, serif",
+                  fontFamily: "DM Sans, system-ui, sans-serif",
                   fontWeight: 900,
                   fontSize: "clamp(2.75rem, 6vw, 4.5rem)",
                   letterSpacing: "-0.03em",
@@ -100,8 +147,20 @@ export default function ProjectsPage() {
               </motion.p>
             </motion.div>
 
-            {/* Empty state */}
-            {projects.length === 0 ? (
+            {/* Content loading state */}
+            {loading ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                  gap: "16px",
+                }}
+              >
+                <ProjectCardSkeleton />
+                <ProjectCardSkeleton />
+                <ProjectCardSkeleton />
+              </div>
+            ) : projects.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -123,7 +182,7 @@ export default function ProjectsPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <h2
                     style={{
-                      fontFamily: "var(--font-fraunces), Georgia, serif",
+                      fontFamily: "DM Sans, system-ui, sans-serif",
                       fontWeight: 700,
                       fontSize: "1.5rem",
                       color: "#f0f0f0",
@@ -156,114 +215,13 @@ export default function ProjectsPage() {
                 variants={stagger}
                 initial="hidden"
                 animate="show"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                  gap: "16px",
-                }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
               >
                 {projects.map((project) => (
-                  <motion.div
-                    key={project.id}
-                    variants={fadeUp}
-                    style={{
-                      backgroundColor: "#111318",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      borderRadius: "8px",
-                      padding: "28px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "16px",
-                      transition: "border-color 0.2s",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")
-                    }
-                  >
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <h2
-                        style={{
-                          fontFamily: "var(--font-fraunces), Georgia, serif",
-                          fontWeight: 700,
-                          fontSize: "1.125rem",
-                          color: "#f0f0f0",
-                          margin: 0,
-                        }}
-                      >
-                        {project.name}
-                      </h2>
-                      <p style={{ fontSize: "0.75rem", color: "#888888", margin: 0 }}>
-                        {project.builder} · {project.school}
-                      </p>
-                    </div>
-                    <p
-                      style={{
-                        fontSize: "0.875rem",
-                        color: "#888888",
-                        lineHeight: 1.6,
-                        margin: 0,
-                        flex: 1,
-                      }}
-                    >
-                      {project.description}
-                    </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        paddingTop: "12px",
-                        borderTop: "1px solid rgba(255,255,255,0.07)",
-                      }}
-                    >
-                      <button
-                        id={`upvote-${project.id}`}
-                        onClick={() => handleUpvote(project.id)}
-                        disabled={upvoted.has(project.id)}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          fontSize: "0.8125rem",
-                          fontWeight: 500,
-                          padding: "6px 12px",
-                          borderRadius: "6px",
-                          border: "1px solid",
-                          borderColor: upvoted.has(project.id)
-                            ? "rgba(255,186,8,0.3)"
-                            : "rgba(255,255,255,0.1)",
-                          backgroundColor: upvoted.has(project.id)
-                            ? "rgba(255,186,8,0.08)"
-                            : "transparent",
-                          color: upvoted.has(project.id) ? "#ffba08" : "#888888",
-                          cursor: upvoted.has(project.id) ? "default" : "pointer",
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        <ChevronUp size={13} />
-                        {project.upvotes}
-                      </button>
-                      {project.link && (
-                        <Link
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            fontSize: "0.75rem",
-                            color: "#888888",
-                            textDecoration: "none",
-                          }}
-                        >
-                          View project <ArrowUpRight size={12} />
-                        </Link>
-                      )}
-                    </div>
+                  <motion.div key={project.id} variants={fadeUp}>
+                    <ProjectCard
+                      project={project}
+                    />
                   </motion.div>
                 ))}
               </motion.div>
@@ -271,7 +229,79 @@ export default function ProjectsPage() {
           </div>
         </div>
       </main>
+
+      {/* Auth Prompt Modal */}
+      {showLoginModal && (
+        <div
+          onClick={() => setShowLoginModal(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#111318",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "12px",
+              padding: "32px",
+              maxWidth: "400px",
+              width: "100%",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+          >
+            <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", color: "#f0f0f0", fontSize: "1.5rem", margin: 0 }}>
+              Join Superhack
+            </h3>
+            <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0, lineHeight: 1.5 }}>
+              You need an account to upvote projects and participate in hackathons.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <Link
+                href="/auth"
+                style={{
+                  backgroundColor: "#ffba08",
+                  color: "#0b0c0f",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  padding: "12px",
+                  borderRadius: "6px",
+                  textDecoration: "none",
+                }}
+              >
+                Create Account / Sign In
+              </Link>
+              <button
+                onClick={() => setShowLoginModal(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#888888",
+                  fontSize: "0.8125rem",
+                  cursor: "pointer",
+                }}
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );
 }
+

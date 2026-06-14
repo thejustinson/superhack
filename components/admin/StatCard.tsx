@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
@@ -46,7 +46,7 @@ export function StatCard({ label, value, sub, trend, trendValue, icon, accent }:
       <div>
         <div style={{
           fontSize: "2rem", fontWeight: 700,
-          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontFamily: "DM Sans, system-ui, sans-serif",
           color: accent ? "#ffba08" : "#f0f0f0",
           lineHeight: 1,
         }}>

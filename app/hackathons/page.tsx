@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { getAllCohorts } from "@/lib/universities";
 import type { CohortWithUniversity } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { CohortCard } from "@/components/ui/CohortCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -27,6 +28,13 @@ export default function HackathonsPage() {
   useEffect(() => {
     async function loadData() {
       try {
+        // Sync cohort status
+        try {
+          await supabase.rpc("sync_cohort_status");
+        } catch (err) {
+          console.error("Failed to sync cohort status:", err);
+        }
+
         const data = await getAllCohorts();
         setCohorts(data);
       } catch (err) {
@@ -65,7 +73,7 @@ export default function HackathonsPage() {
             }}>
               Chapters
             </span>
-            <h1 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "3.5rem", letterSpacing: "-0.02em", margin: "0 0 12px", lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900, fontSize: "3.5rem", letterSpacing: "-0.02em", margin: "0 0 12px", lineHeight: 1.1 }}>
               Hackathons
             </h1>
             <p style={{ fontFamily: "var(--font-dm-sans), sans-serif", fontSize: "1rem", color: "#888888", margin: 0, maxWidth: "500px", lineHeight: 1.6 }}>
@@ -83,7 +91,7 @@ export default function HackathonsPage() {
               {/* Active Section */}
               <section>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "12px" }}>
-                  <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.5rem", margin: 0 }}>Active Hackathons</h2>
+                  <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", margin: 0 }}>Active Hackathons</h2>
                   <span style={{ backgroundColor: "rgba(20,241,149,0.12)", color: "#14F195", fontSize: "0.75rem", fontWeight: 600, padding: "2px 8px", borderRadius: "12px" }}>
                     {active.length}
                   </span>
@@ -111,7 +119,7 @@ export default function HackathonsPage() {
               {/* Upcoming Section */}
               <section>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "12px" }}>
-                  <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.5rem", margin: 0 }}>Upcoming Hackathons</h2>
+                  <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", margin: 0 }}>Upcoming Hackathons</h2>
                   <span style={{ backgroundColor: "rgba(255,186,8,0.12)", color: "#ffba08", fontSize: "0.75rem", fontWeight: 600, padding: "2px 8px", borderRadius: "12px" }}>
                     {upcoming.length}
                   </span>
@@ -139,7 +147,7 @@ export default function HackathonsPage() {
               {/* Past Section */}
               <section>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "12px" }}>
-                  <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: "1.5rem", margin: 0 }}>Past Hackathons</h2>
+                  <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", margin: 0 }}>Past Hackathons</h2>
                   <span style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#888888", fontSize: "0.75rem", fontWeight: 600, padding: "2px 8px", borderRadius: "12px" }}>
                     {past.length}
                   </span>
@@ -171,7 +179,7 @@ export default function HackathonsPage() {
                 display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "24px"
               }}>
                 <div>
-                  <h2 style={{ fontFamily: "var(--font-fraunces), serif", fontWeight: 900, fontSize: "1.75rem", margin: "0 0 8px" }}>
+                  <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontWeight: 900, fontSize: "1.75rem", margin: "0 0 8px" }}>
                     Want Superhack at your school?
                   </h2>
                   <p style={{ fontSize: "0.9375rem", color: "#888888", margin: 0 }}>
@@ -197,3 +205,4 @@ export default function HackathonsPage() {
     </>
   );
 }
+

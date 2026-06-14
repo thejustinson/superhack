@@ -41,6 +41,12 @@ export interface Database {
           university_verified: boolean;
           is_admin: boolean;
           created_at: string;
+          username: string | null;
+          about: string | null;
+          avatar_url: string | null;
+          twitter_url: string | null;
+          github_url: string | null;
+          website_url: string | null;
         };
         Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at"> & { id: string };
         Update: Partial<Omit<Database["public"]["Tables"]["profiles"]["Row"], "id" | "created_at">>;
@@ -56,6 +62,9 @@ export interface Database {
           start_date: string | null;
           end_date: string | null;
           prize_pool: Json;
+          scope: "university" | "faculty";
+          faculty_name: string | null;
+          faculty_logo_url: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["cohorts"]["Row"], "id" | "created_at"> & { id?: string };
@@ -74,8 +83,24 @@ export interface Database {
           solana_address: string | null;
           upvote_count: number;
           created_at: string;
+          logo_url: string | null;
+          tagline: string | null;
+          twitter_url: string | null;
+          telegram_url: string | null;
+          website_url: string | null;
+          screenshots: string[] | null;
+          status: "draft" | "submitted" | "winner";
+          prize_place: string | null;
+          slug: string | null;
+          project_slug: string | null;
+          category: string | null;
         };
-        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "created_at" | "upvote_count"> & { id?: string; upvote_count?: number };
+        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "created_at" | "upvote_count" | "status" | "prize_place"> & { 
+          id?: string; 
+          upvote_count?: number;
+          status?: "draft" | "submitted" | "winner";
+          prize_place?: string | null;
+        };
         Update: Partial<Database["public"]["Tables"]["projects"]["Insert"]>;
         Relationships: [];
       };
@@ -97,11 +122,39 @@ export interface Database {
           title: string;
           description: string | null;
           category: string | null;
-          difficulty: string | null;
+          difficulty: "beginner" | "intermediate" | "advanced" | null;
+          problem: string | null;
+          solution: string | null;
+          suggested_stack: string[] | null;
+          upvote_count: number;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["ideas"]["Row"], "id" | "created_at"> & { id?: string };
+        Insert: Omit<Database["public"]["Tables"]["ideas"]["Row"], "id" | "created_at" | "upvote_count"> & { id?: string; upvote_count?: number };
         Update: Partial<Omit<Database["public"]["Tables"]["ideas"]["Row"], "id" | "created_at">>;
+        Relationships: [];
+      };
+      idea_votes: {
+        Row: { id: string; idea_id: string; user_id: string; created_at: string };
+        Insert: { id?: string; idea_id: string; user_id: string };
+        Update: never;
+        Relationships: [];
+      };
+      host_applications: {
+        Row: {
+          id: string;
+          full_name: string;
+          email: string;
+          phone: string | null;
+          university_name: string;
+          faculty_name: string | null;
+          role: string | null;
+          why: string | null;
+          estimated_attendance: number | null;
+          status: "pending" | "reviewed" | "approved" | "rejected";
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["host_applications"]["Row"], "id" | "created_at" | "status"> & { id?: string; status?: "pending" | "reviewed" | "approved" | "rejected" };
+        Update: Partial<Omit<Database["public"]["Tables"]["host_applications"]["Row"], "id" | "created_at">>;
         Relationships: [];
       };
     };
@@ -109,6 +162,7 @@ export interface Database {
     Functions: {
       increment_upvote: { Args: { project_id: string }; Returns: void };
       decrement_upvote: { Args: { project_id: string }; Returns: void };
+      sync_cohort_status: { Args: Record<string, never>; Returns: void };
     };
     Enums: {
       [_ in never]: never;
@@ -125,11 +179,14 @@ export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Cohort = Database["public"]["Tables"]["cohorts"]["Row"];
 export type Project = Database["public"]["Tables"]["projects"]["Row"];
 export type Vote = Database["public"]["Tables"]["votes"]["Row"];
+export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
+export type IdeaVote = Database["public"]["Tables"]["idea_votes"]["Row"];
+export type HostApplication = Database["public"]["Tables"]["host_applications"]["Row"];
 
 // Joined types used across the app
 export type CohortWithUniversity = Cohort & { universities: University };
 export type ProjectWithDetails = Project & {
-  profiles: Pick<UserProfile, "id" | "full_name" | "university_id">;
+  profiles: Pick<UserProfile, "id" | "full_name" | "university_id" | "username">;
   cohorts: Cohort & { universities: University };
 };
 

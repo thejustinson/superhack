@@ -1,21 +1,9 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
 import "./globals.css";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["700", "900"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-dm-sans",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: { default: "Superhack — Build on Solana. Get paid.", template: "%s | Superhack" },
@@ -26,12 +14,24 @@ export const metadata: Metadata = {
     description: "A Superteam Nigeria hackathon initiative. Build on Solana in two weeks.",
     type: "website",
   },
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet" />
+        <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+      </head>
       <body style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <AuthProvider>
           {children}
         </AuthProvider>
@@ -39,3 +39,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+

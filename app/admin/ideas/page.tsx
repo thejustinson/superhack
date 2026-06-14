@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -25,6 +25,9 @@ interface Idea {
 const EMPTY = {
   title: "", description: "" as string | null,
   category: "" as string | null, difficulty: "beginner" as string | null,
+  problem: "" as string | null,
+  solution: "" as string | null,
+  suggested_stack: "" as string, // comma-separated in the form
 };
 
 const inputStyle: React.CSSProperties = {
@@ -70,13 +73,16 @@ export default function AdminIdeasPage() {
     setError(""); setSlideOpen(true);
   }
 
-  function openEdit(row: Idea) {
+  function openEdit(row: any) {
     setEditing(row);
     setForm({
       title: row.title,
       description: row.description ?? "",
       category: row.category ?? "",
       difficulty: row.difficulty ?? "beginner",
+      problem: row.problem ?? "",
+      solution: row.solution ?? "",
+      suggested_stack: (row.suggested_stack ?? []).join(", "),
     });
     setError(""); setSlideOpen(true);
   }
@@ -92,8 +98,14 @@ export default function AdminIdeasPage() {
       title: form.title,
       description: form.description || null,
       category: form.category || null,
-      difficulty: form.difficulty || null,
+      difficulty: (form.difficulty || null) as "beginner" | "intermediate" | "advanced" | null,
+      problem: form.problem || null,
+      solution: form.solution || null,
+      suggested_stack: form.suggested_stack
+        ? form.suggested_stack.split(",").map((s: string) => s.trim()).filter(Boolean)
+        : null,
     };
+
     try {
       if (editing) {
         const { error: err } = await supabase.from("ideas").update(payload).eq("id", editing.id);
@@ -129,7 +141,7 @@ export default function AdminIdeasPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
           <h1 style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
+            fontFamily: "DM Sans, system-ui, sans-serif",
             fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
           }}>Ideas</h1>
           <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
@@ -146,12 +158,12 @@ export default function AdminIdeasPage() {
           { key: "title", label: "Title", sortable: true },
           { key: "category", label: "Category", render: (r) => r.category ? (
             <Badge variant="accent">{r.category}</Badge>
-          ) : <span style={{ color: "#555" }}>—</span> },
+          ) : <span style={{ color: "#555" }}>â€”</span> },
           { key: "difficulty", label: "Difficulty", render: (r) => r.difficulty ? (
             <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: difficultyColor[r.difficulty] ?? "#888" }}>
               {r.difficulty.charAt(0).toUpperCase() + r.difficulty.slice(1)}
             </span>
-          ) : "—" },
+          ) : "â€”" },
           { key: "created_at", label: "Added", sortable: true, render: (r) =>
             new Date(r.created_at).toLocaleDateString() },
         ]}
@@ -195,7 +207,7 @@ export default function AdminIdeasPage() {
               style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }}
               value={form.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="A brief description of the idea and its impact…"
+              placeholder="A brief description of the idea and its impactâ€¦"
             />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -206,7 +218,7 @@ export default function AdminIdeasPage() {
                 onChange={(e) => set("category", e.target.value)}
                 style={{ ...inputStyle, cursor: "pointer" }}
               >
-                <option value="">Select…</option>
+                <option value="">Selectâ€¦</option>
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -226,12 +238,43 @@ export default function AdminIdeasPage() {
             </div>
           </div>
 
+          <div>
+            <label style={labelStyle}>The Problem</label>
+            <textarea
+              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              value={(form as any).problem ?? ""}
+              onChange={(e) => set("problem", e.target.value)}
+              placeholder="What pain does this solve?"
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>The Solution</label>
+            <textarea
+              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              value={(form as any).solution ?? ""}
+              onChange={(e) => set("solution", e.target.value)}
+              placeholder="What does the project do to solve it?"
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>
+              Suggested Stack
+              <span style={{ color: "#555", fontWeight: 400, marginLeft: "6px" }}>comma-separated</span>
+            </label>
+            <input
+              style={inputStyle}
+              value={(form as any).suggested_stack ?? ""}
+              onChange={(e) => setForm((f: any) => ({ ...f, suggested_stack: e.target.value }))}
+              placeholder="Anchor, Next.js, Solana Pay"
+            />
+          </div>
+
           {error && <p style={{ color: "#f87171", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
 
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
             <Button variant="ghost" size="sm" onClick={() => setSlideOpen(false)} disabled={saving}>Cancel</Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Saving…" : editing ? "Save Changes" : "Create Idea"}
+              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create Idea"}
             </Button>
           </div>
         </div>
@@ -248,3 +291,4 @@ export default function AdminIdeasPage() {
     </div>
   );
 }
+

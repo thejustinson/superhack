@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
@@ -36,14 +36,14 @@ const resources: { group: string; links: ResourceLink[] }[] = [
   {
     group: "Tokens",
     links: [
-      { title: "SPL Token Docs", description: "Everything about the Solana Program Library token program — create, mint, burn, and transfer.", href: "https://spl.solana.com/token" },
+      { title: "SPL Token Docs", description: "Everything about the Solana Program Library token program â€” create, mint, burn, and transfer.", href: "https://spl.solana.com/token" },
       { title: "Metaplex Docs", description: "NFT standards, compressed NFTs (cNFTs), and the Metaplex protocol for digital assets on Solana.", href: "https://developers.metaplex.com" },
     ],
   },
   {
     group: "Wallets",
     links: [
-      { title: "Phantom", description: "The most popular Solana wallet. Supports devnet — switch in settings for testing.", href: "https://phantom.app" },
+      { title: "Phantom", description: "The most popular Solana wallet. Supports devnet â€” switch in settings for testing.", href: "https://phantom.app" },
       { title: "Backpack", description: "Multi-chain wallet with xNFT support. Great for exploring newer Solana features.", href: "https://backpack.app" },
     ],
   },
@@ -97,7 +97,7 @@ export default function DocsPage() {
               <motion.h1
                 variants={fadeUp}
                 style={{
-                  fontFamily: "var(--font-fraunces), Georgia, serif",
+                  fontFamily: "DM Sans, system-ui, sans-serif",
                   fontWeight: 900,
                   fontSize: "clamp(2.75rem, 6vw, 4.5rem)",
                   letterSpacing: "-0.03em",
@@ -135,7 +135,7 @@ export default function DocsPage() {
                   >
                     <h2
                       style={{
-                        fontFamily: "var(--font-fraunces), Georgia, serif",
+                        fontFamily: "DM Sans, system-ui, sans-serif",
                         fontSize: "1.125rem",
                         fontWeight: 700,
                         color: "#f0f0f0",
@@ -185,7 +185,7 @@ export default function DocsPage() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                           <span
                             style={{
-                              fontFamily: "var(--font-fraunces), Georgia, serif",
+                              fontFamily: "DM Sans, system-ui, sans-serif",
                               fontWeight: 700,
                               fontSize: "0.9375rem",
                               color: "#f0f0f0",
@@ -222,3 +222,4 @@ export default function DocsPage() {
     </>
   );
 }
+

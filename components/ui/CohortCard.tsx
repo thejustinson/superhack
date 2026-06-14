@@ -1,7 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Calendar, Trophy } from "lucide-react";
 import { Badge } from "./Badge";
 import type { CohortWithUniversity } from "@/lib/supabase";
+import { InlineCountdown } from "./InlineCountdown";
 
 interface CohortCardProps {
   cohort: CohortWithUniversity;
@@ -67,7 +68,7 @@ export function CohortCard({ cohort }: CohortCardProps) {
 
       {/* Title */}
       <h3 style={{
-        fontFamily: "var(--font-fraunces), Georgia, serif",
+        fontFamily: "DM Sans, system-ui, sans-serif",
         fontWeight: 700,
         fontSize: "1.125rem",
         color: "#f0f0f0",
@@ -83,6 +84,11 @@ export function CohortCard({ cohort }: CohortCardProps) {
           <Calendar size={13} />
           <span>{formatDate(cohort.start_date)} — {formatDate(cohort.end_date)}</span>
         </div>
+        {cohort.start_date && cohort.end_date && (
+          <div style={{ marginTop: "4px" }}>
+            <InlineCountdown startDate={cohort.start_date} endDate={cohort.end_date} />
+          </div>
+        )}
         {prizeTotal > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.8125rem", color: "#888888" }}>
             <Trophy size={13} />

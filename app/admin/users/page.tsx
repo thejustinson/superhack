@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Shield, ShieldOff } from "lucide-react";
@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
     <div>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{
-          fontFamily: "var(--font-fraunces), Georgia, serif",
+          fontFamily: "DM Sans, system-ui, sans-serif",
           fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", margin: 0,
         }}>Users</h1>
         <p style={{ color: "#888888", fontSize: "0.875rem", margin: "4px 0 0" }}>
@@ -49,9 +49,9 @@ export default function AdminUsersPage() {
 
       <DataTable
         columns={[
-          { key: "full_name", label: "Name", sortable: true, render: (r) => r.full_name || <span style={{ color: "#555" }}>—</span> },
+          { key: "full_name", label: "Name", sortable: true, render: (r) => r.full_name || <span style={{ color: "#555" }}>â€”</span> },
           { key: "email", label: "Email", sortable: true, render: (r) => (
-            <span style={{ fontSize: "0.8rem", color: "#888888" }}>{r.email ?? "—"}</span>
+            <span style={{ fontSize: "0.8rem", color: "#888888" }}>{r.email ?? "â€”"}</span>
           )},
           { key: "university_verified", label: "Verified", render: (r) => (
             <span style={{
@@ -115,3 +115,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

@@ -138,9 +138,9 @@ export default function AdminUniversitiesPage() {
           { key: "slug", label: "Slug", sortable: true, render: (r) => (
             <code style={{ fontSize: "0.8rem", color: "#888888" }}>{r.slug}</code>
           )},
-          { key: "city", label: "City", sortable: true, render: (r) => r.city ?? "â€”" },
-          { key: "state", label: "State", render: (r) => r.state ?? "â€”" },
-          { key: "email_domain", label: "Email Domain", render: (r) => r.email_domain ?? "â€”" },
+          { key: "city", label: "City", sortable: true, render: (r) => r.city ?? "-" },
+          { key: "state", label: "State", render: (r) => r.state ?? "-" },
+          { key: "email_domain", label: "Email Domain", render: (r) => r.email_domain ?? "-" },
         ]}
         data={data}
         keyField="id"
@@ -241,7 +241,7 @@ export default function AdminUniversitiesPage() {
               style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
               value={form.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="Brief descriptionâ€¦"
+              placeholder="Brief description"
             />
           </div>
 
@@ -254,7 +254,7 @@ export default function AdminUniversitiesPage() {
               Cancel
             </Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create University"}
+              {saving ? "Saving..." : editing ? "Save Changes" : "Create University"}
             </Button>
           </div>
         </div>

@@ -62,7 +62,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
         {label}
       </div>
       <div style={{ fontSize: "0.9375rem", color: "#f0f0f0", lineHeight: 1.5 }}>
-        {value || <span style={{ color: "#555" }}>â€”</span>}
+        {value || <span style={{ color: "#555" }}>-</span>}
       </div>
     </div>
   );
@@ -82,19 +82,19 @@ const COLUMNS: Column<HostApplication>[] = [
   {
     key: "faculty_name",
     label: "Faculty",
-    render: (row) => <span style={{ color: row.faculty_name ? "#f0f0f0" : "#555" }}>{row.faculty_name || "â€”"}</span>,
+    render: (row) => <span style={{ color: row.faculty_name ? "#f0f0f0" : "#555" }}>{row.faculty_name || "-"}</span>,
   },
   {
     key: "role",
     label: "Role",
-    render: (row) => <span style={{ color: row.role ? "#f0f0f0" : "#555" }}>{row.role || "â€”"}</span>,
+    render: (row) => <span style={{ color: row.role ? "#f0f0f0" : "#555" }}>{row.role || "-"}</span>,
   },
   {
     key: "estimated_attendance",
     label: "Attendance",
     render: (row) => (
       <span style={{ color: row.estimated_attendance != null ? "#f0f0f0" : "#555" }}>
-        {row.estimated_attendance != null ? row.estimated_attendance.toLocaleString() : "â€”"}
+        {row.estimated_attendance != null ? row.estimated_attendance.toLocaleString() : "-"}
       </span>
     ),
   },
@@ -346,7 +346,7 @@ export default function ApplicationsPage() {
                     {selected.why}
                   </div>
                 ) : (
-                  <span style={{ color: "#555" }}>â€”</span>
+                  <span style={{ color: "#555" }}>-</span>
                 )}
               </div>
               <InfoRow

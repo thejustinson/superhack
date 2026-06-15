@@ -36,14 +36,14 @@ const resources: { group: string; links: ResourceLink[] }[] = [
   {
     group: "Tokens",
     links: [
-      { title: "SPL Token Docs", description: "Everything about the Solana Program Library token program â€” create, mint, burn, and transfer.", href: "https://spl.solana.com/token" },
+      { title: "SPL Token Docs", description: "Everything about the Solana Program Library token program - create, mint, burn, and transfer.", href: "https://spl.solana.com/token" },
       { title: "Metaplex Docs", description: "NFT standards, compressed NFTs (cNFTs), and the Metaplex protocol for digital assets on Solana.", href: "https://developers.metaplex.com" },
     ],
   },
   {
     group: "Wallets",
     links: [
-      { title: "Phantom", description: "The most popular Solana wallet. Supports devnet â€” switch in settings for testing.", href: "https://phantom.app" },
+      { title: "Phantom", description: "The most popular Solana wallet. Supports devnet - switch in settings for testing.", href: "https://phantom.app" },
       { title: "Backpack", description: "Multi-chain wallet with xNFT support. Great for exploring newer Solana features.", href: "https://backpack.app" },
     ],
   },

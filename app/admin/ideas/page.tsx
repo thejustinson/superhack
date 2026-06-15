@@ -158,12 +158,12 @@ export default function AdminIdeasPage() {
           { key: "title", label: "Title", sortable: true },
           { key: "category", label: "Category", render: (r) => r.category ? (
             <Badge variant="accent">{r.category}</Badge>
-          ) : <span style={{ color: "#555" }}>â€”</span> },
+          ) : <span style={{ color: "#555" }}>-</span> },
           { key: "difficulty", label: "Difficulty", render: (r) => r.difficulty ? (
             <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: difficultyColor[r.difficulty] ?? "#888" }}>
               {r.difficulty.charAt(0).toUpperCase() + r.difficulty.slice(1)}
             </span>
-          ) : "â€”" },
+          ) : "-" },
           { key: "created_at", label: "Added", sortable: true, render: (r) =>
             new Date(r.created_at).toLocaleDateString() },
         ]}
@@ -207,7 +207,7 @@ export default function AdminIdeasPage() {
               style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }}
               value={form.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="A brief description of the idea and its impactâ€¦"
+              placeholder="A brief description of the idea and its impact..."
             />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -218,7 +218,7 @@ export default function AdminIdeasPage() {
                 onChange={(e) => set("category", e.target.value)}
                 style={{ ...inputStyle, cursor: "pointer" }}
               >
-                <option value="">Selectâ€¦</option>
+                <option value="">Select...</option>
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -274,7 +274,7 @@ export default function AdminIdeasPage() {
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
             <Button variant="ghost" size="sm" onClick={() => setSlideOpen(false)} disabled={saving}>Cancel</Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create Idea"}
+              {saving ? "Saving..." : editing ? "Save Changes" : "Create Idea"}
             </Button>
           </div>
         </div>

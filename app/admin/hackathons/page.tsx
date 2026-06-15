@@ -168,12 +168,12 @@ export default function AdminHackathonsPage() {
       <DataTable
         columns={[
           { key: "title", label: "Title", sortable: true },
-          { key: "university_id", label: "University", render: (r: any) => r.universities?.name ?? "â€”" },
+          { key: "university_id", label: "University", render: (r: any) => r.universities?.name ?? "-" },
           { key: "status", label: "Status", render: (r) => (
             <Badge variant={statusVariant[r.status] ?? "muted"}>{r.status}</Badge>
           )},
-          { key: "start_date", label: "Start", render: (r) => r.start_date ? new Date(r.start_date).toLocaleDateString() : "â€”" },
-          { key: "end_date", label: "End", render: (r) => r.end_date ? new Date(r.end_date).toLocaleDateString() : "â€”" },
+          { key: "start_date", label: "Start", render: (r) => r.start_date ? new Date(r.start_date).toLocaleDateString() : "-" },
+          { key: "end_date", label: "End", render: (r) => r.end_date ? new Date(r.end_date).toLocaleDateString() : "-" },
         ]}
         data={data}
         keyField="id"
@@ -208,7 +208,7 @@ export default function AdminHackathonsPage() {
               onChange={(e) => set("university_id", e.target.value)}
               style={{ ...inputStyle, cursor: "pointer" }}
             >
-              <option value="">Select universityâ€¦</option>
+              <option value="">Select university...</option>
               {unis.map((u) => (
                 <option key={u.id} value={u.id}>{u.name}</option>
               ))}
@@ -219,7 +219,7 @@ export default function AdminHackathonsPage() {
             <input
               style={inputStyle} value={form.title}
               onChange={(e) => set("title", e.target.value)}
-              placeholder="Superhack 2025 â€” Lagos"
+              placeholder="Superhack 2025 - Lagos"
             />
           </div>
           <div>
@@ -286,7 +286,7 @@ export default function AdminHackathonsPage() {
                 <input
                   style={inputStyle} value={form.faculty_logo_url ?? ""}
                   onChange={(e) => set("faculty_logo_url", e.target.value)}
-                  placeholder="https://â€¦"
+                  placeholder="https://..."
                 />
                 {form.faculty_logo_url && (
                   <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "10px" }}>
@@ -306,7 +306,7 @@ export default function AdminHackathonsPage() {
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
             <Button variant="ghost" size="sm" onClick={() => setSlideOpen(false)} disabled={saving}>Cancel</Button>
             <Button size="sm" onClick={save} disabled={saving}>
-              {saving ? "Savingâ€¦" : editing ? "Save Changes" : "Create Hackathon"}
+              {saving ? "Saving..." : editing ? "Save Changes" : "Create Hackathon"}
             </Button>
           </div>
         </div>

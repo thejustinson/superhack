@@ -46,7 +46,7 @@ const BENEFITS = [
   {
     icon: Trophy,
     title: "Real prizes for your students",
-    desc: "Winners receive cash prizes funded by Superteam Nigeria â€” $100, $70, and $50 for top projects.",
+    desc: "Winners receive cash prizes funded by Superteam Nigeria - $100, $70, and $50 for top projects.",
   },
   {
     icon: Globe,
@@ -115,7 +115,7 @@ export default function ApplyPage() {
             className="apply-grid"
           >
 
-            {/* â”€â”€â”€ Left column â”€â”€â”€ */}
+            {/*  Left column */}
             <motion.div
               variants={stagger} initial="hidden" animate="show"
               style={{ display: "flex", flexDirection: "column", gap: "40px" }}
@@ -179,12 +179,12 @@ export default function ApplyPage() {
                   &ldquo;We&rsquo;ve started at Uniben. You could be next.&rdquo;
                 </p>
                 <span style={{ fontSize: "0.8125rem", color: "#888888" }}>
-                  â€” Superteam Nigeria
+                  - Superteam Nigeria
                 </span>
               </motion.blockquote>
             </motion.div>
 
-            {/* â”€â”€â”€ Right column: Form â”€â”€â”€ */}
+            {/* Right column: Form */}
             <AnimatePresence mode="wait">
               {success ? (
                 <motion.div
@@ -274,7 +274,7 @@ export default function ApplyPage() {
                   <motion.div variants={fadeUp}>
                     <label style={labelStyle}>
                       Faculty name{" "}
-                      <span style={{ color: "#555", fontWeight: 400 }}>(optional â€” leave blank if applying for whole university)</span>
+                      <span style={{ color: "#555", fontWeight: 400 }}>(optional - leave blank if applying for whole university)</span>
                     </label>
                     <input style={inputStyle} value={form.faculty_name} placeholder="Faculty of Engineering"
                       onChange={(e) => set("faculty_name", e.target.value)}
@@ -289,7 +289,7 @@ export default function ApplyPage() {
                       <label style={labelStyle}>Your role</label>
                       <select value={form.role} onChange={(e) => set("role", e.target.value)}
                         style={{ ...inputStyle, cursor: "pointer" }}>
-                        <option value="">Selectâ€¦</option>
+                        <option value="">Select</option>
                         {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
@@ -310,7 +310,7 @@ export default function ApplyPage() {
                     <textarea
                       value={form.why}
                       onChange={(e) => set("why", e.target.value)}
-                      placeholder="Tell us a bit about your campus, the builders community, and what you hope to achieveâ€¦"
+                      placeholder="Tell us a bit about your campus, the builders community, and what you hope to achieve..."
                       onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(255,186,8,0.5)")}
                       onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
                       style={{ ...inputStyle, minHeight: "110px", resize: "vertical" }}
@@ -334,7 +334,7 @@ export default function ApplyPage() {
                       transition: "opacity 0.2s",
                     }}
                   >
-                    {saving ? <><Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} /> Sendingâ€¦</> : "Send application"}
+                    {saving ? <><Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} /> Sending...</> : "Send application"}
                   </motion.button>
                 </motion.div>
               )}

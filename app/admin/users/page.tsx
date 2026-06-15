@@ -49,9 +49,9 @@ export default function AdminUsersPage() {
 
       <DataTable
         columns={[
-          { key: "full_name", label: "Name", sortable: true, render: (r) => r.full_name || <span style={{ color: "#555" }}>â€”</span> },
+          { key: "full_name", label: "Name", sortable: true, render: (r) => r.full_name || <span style={{ color: "#555" }}>-</span> },
           { key: "email", label: "Email", sortable: true, render: (r) => (
-            <span style={{ fontSize: "0.8rem", color: "#888888" }}>{r.email ?? "â€”"}</span>
+            <span style={{ fontSize: "0.8rem", color: "#888888" }}>{r.email ?? "-"}</span>
           )},
           { key: "university_verified", label: "Verified", render: (r) => (
             <span style={{

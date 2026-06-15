@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useUploadThing } from "@/lib/uploadthing";
-import { Loader2, CheckCircle, User, Lock, Trash2, Camera, AtSign, Globe } from "lucide-react";
+import { Loader2, CheckCircle, User, Lock, Trash2, Camera, AtSign, Globe, Check } from "lucide-react";
 
 function slugify(s: string): string {
   return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
@@ -184,7 +184,7 @@ export default function DashboardProfilePage() {
           {username.length > 0 && username !== profile?.username && (
             <p style={{ fontSize: "0.75rem", color: usernameColor, margin: "6px 0 0" }}>
               {usernameStatus === "checking" && <Loader2 size={11} style={{ display: "inline", marginRight: "4px", animation: "spin 0.8s linear infinite" }} />}
-              {usernameStatus === "available" && `âœ“ Available â€” superhack.fun/${slugify(username)}`}
+              {usernameStatus === "available" && <span className="flex items-center gap-1"><CheckCircle size={11} /> Available - superhack.fun/{slugify(username)}</span>}
               {usernameStatus === "taken" && "That username is taken"}
               {usernameStatus === "invalid" && "Must be at least 3 characters"}
               {usernameStatus === "checking" && "Checking..."}
@@ -258,7 +258,7 @@ export default function DashboardProfilePage() {
             opacity: (!fullName.trim() && !saving) ? 0.5 : 1,
           }}
         >
-          {saving ? (<><Loader2 size={15} style={{ animation: "spin 0.8s linear infinite" }} /> Savingâ€¦</>) : saved ? (<><CheckCircle size={15} /> Saved!</>) : ("Save changes")}
+          {saving ? (<><Loader2 size={15} style={{ animation: "spin 0.8s linear infinite" }} /> Saving...</>) : saved ? (<><CheckCircle size={15} /> Saved!</>) : ("Save changes")}
         </button>
       </motion.div>
 

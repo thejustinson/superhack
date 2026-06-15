@@ -69,9 +69,9 @@ export default function AdminProjectsPage() {
       <DataTable
         columns={[
           { key: "name", label: "Project", sortable: true },
-          { key: "profiles", label: "Builder", render: (r) => r.profiles?.full_name ?? "â€”" },
-          { key: "cohorts", label: "Hackathon", render: (r) => r.cohorts?.title ?? "â€”" },
-          { key: "cohorts", label: "University", render: (r) => r.cohorts?.universities?.name ?? "â€”" },
+          { key: "profiles", label: "Builder", render: (r) => r.profiles?.full_name ?? "-" },
+          { key: "cohorts", label: "Hackathon", render: (r) => r.cohorts?.title ?? "-" },
+          { key: "cohorts", label: "University", render: (r) => r.cohorts?.universities?.name ?? "-" },
           { key: "upvote_count", label: "Votes", sortable: true, render: (r) => (
             <span style={{ fontWeight: 600, color: "#ffba08" }}>{r.upvote_count}</span>
           )},

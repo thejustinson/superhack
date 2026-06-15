@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import { sendOTP, verifyOTP, getUserProfile } from "@/lib/auth";
 import { OTPInput } from "@/components/ui/OTPInput";
 import { useAuth } from "@/context/AuthContext";
@@ -283,12 +283,12 @@ export default function AuthPage() {
                     style={{
                       background: "none", border: "none", color: "#888888",
                       fontSize: "0.8125rem", cursor: "pointer", fontFamily: "inherit",
-                      transition: "color 0.2s"
+                      transition: "color 0.2s", display: "flex", alignItems: "center", gap: "5px"
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#f0f0f0")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#888888")}
                   >
-                    â† Use a different email
+                    <ArrowLeft size={12}/> Use a different email
                   </button>
                 </div>
               </form>

@@ -48,14 +48,14 @@ const SECTION_SURFACE: React.CSSProperties = {
 };
 
 const prizes = [
-  { rank: "1st Place", amount: "$100", desc: "Best overall â€” technical excellence & impact", hot: true },
-  { rank: "2nd Place", amount: "$70", desc: "Runner-up â€” strong execution and creativity", hot: false },
-  { rank: "3rd Place", amount: "$50", desc: "Third place â€” solid build and presentation", hot: false },
+  { rank: "1st Place", amount: "$100", desc: "Best overall - technical excellence & impact", hot: true },
+  { rank: "2nd Place", amount: "$70", desc: "Runner-up - strong execution and creativity", hot: false },
+  { rank: "3rd Place", amount: "$50", desc: "Third place - solid build and presentation", hot: false },
   { rank: "Community Vote", amount: "$30", desc: "Voted best project by the Superhack community", hot: false },
 ];
 
 const steps = [
-  { n: "01", title: "Learn about Solana", week: "Week 1", desc: "Dive into Solana fundamentals â€” accounts, programs, transactions. Full resource list provided, no prior blockchain experience needed." },
+  { n: "01", title: "Learn about Solana", week: "Week 1", desc: "Dive into Solana fundamentals - accounts, programs, transactions. Full resource list provided, no prior blockchain experience needed." },
   { n: "02", title: "Build your project", week: "Week 2", desc: "Pick an idea from our curated list or bring your own. Build a working Solana dApp or on-chain program on devnet." },
   { n: "03", title: "Submit & list it", week: "Submission", desc: "Fill in the submission form with project details, GitHub link, and your Solana program address to go live on the board." },
   { n: "04", title: "Demo day & prizes", week: "Demo Day", desc: "Present to judges and community. Winners get paid in USDC directly to their Solana wallet." },
@@ -208,7 +208,7 @@ export default function HomePage() {
             {/* Social proof */}
             <motion.div {...fadeUp(0.6)}>
               <p style={{ margin: 0, fontSize: "0.8rem", color: "#555555", fontFamily: "var(--font-dm-sans), sans-serif" }}>
-                Join the next generation of African blockchain builders.
+                Join the train of blockchain builders.
               </p>
             </motion.div>
           </div>
@@ -367,7 +367,7 @@ export default function HomePage() {
                 Not sure what to build?
               </h2>
               <p style={{ color: "#888888", margin: 0, fontSize: "1rem", maxWidth: "460px", lineHeight: 1.6 }}>
-                Browse our curated list of Solana project ideas â€” built for student builders.
+                Browse our curated list of Solana project ideas - built for student builders.
               </p>
             </motion.div>
 
@@ -570,7 +570,7 @@ export default function HomePage() {
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
-                Apply here â†’
+                Apply here <ArrowRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
               </Link>
             </p>
           </motion.div>

@@ -11,8 +11,8 @@ const NAV_LINKS = [
 
 const POWERED_BY = [
   { label: "Solana", href: "https://solana.com", dot: true },
-  { label: "Superteam", href: "https://superteam.fun", dot: false },
-  { label: "Superteam Nigeria", href: "https://superteamng.com", dot: false },
+  { label: "Superteam", href: "https://superteam.fun", dot: true },
+  { label: "Superteam Nigeria", href: "https://fun.superteam.fun", dot: true },
 ];
 
 export function Footer() {

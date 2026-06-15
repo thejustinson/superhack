@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Loader2, CheckCircle2, AtSign, User } from "lucide-react";
+import { Loader2, CheckCircle2, AtSign, User, CheckCircle } from "lucide-react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -78,7 +78,7 @@ function OnboardingContent() {
     if (profile?.full_name && profile?.username) {
       router.push("/dashboard");
     } else if (profile?.full_name && !profile?.username) {
-      // Already has a name but no username â€” skip to step 2
+      // Already has a name but no username - skip to step 2
       setStep(2);
     }
   }, [profile, router]);
@@ -166,8 +166,8 @@ function OnboardingContent() {
 
   const usernameHelperText = {
     idle: username.length > 0 ? `superhack.fun/${slugify(username)}` : "Choose a unique @handle",
-    checking: "Checking availabilityâ€¦",
-    available: `âœ“ Available â€” superhack.fun/${slugify(username)}`,
+    checking: "Checking availability...",
+    available: <span className="flex items-center gap-1"><CheckCircle size={11} /> Available - superhack.fun/{slugify(username)}</span>,
     taken: "That username is already taken",
     invalid: "Username must be at least 3 characters",
   }[usernameStatus];

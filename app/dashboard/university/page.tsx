@@ -31,7 +31,7 @@ function formatDate(dateStr: string | null) {
   });
 }
 
-// â”€â”€â”€ Verified State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Verified State 
 
 function VerifiedView({ profile }: { profile: any }) {
   const [university, setUniversity] = useState<University | null>(null);
@@ -236,7 +236,7 @@ function VerifiedView({ profile }: { profile: any }) {
   );
 }
 
-// â”€â”€â”€ Verification Flow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Verification Flow 
 
 function VerificationFlow() {
   const { user, refreshProfile } = useAuth();
@@ -536,7 +536,7 @@ function VerificationFlow() {
   );
 }
 
-// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Page 
 
 export default function UniversityPage() {
   const { profile, loading } = useAuth();

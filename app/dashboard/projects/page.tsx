@@ -66,7 +66,7 @@ export default function DashboardProjectsPage() {
             My Projects
           </h1>
           <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0 }}>
-            {loading ? "Loadingâ€¦" : `${projects.length} project${projects.length !== 1 ? "s" : ""} submitted`}
+            {loading ? "Loading..." : `${projects.length} project${projects.length !== 1 ? "s" : ""} submitted`}
           </p>
         </div>
         {profile?.university_verified && (
@@ -140,7 +140,7 @@ export default function DashboardProjectsPage() {
                       border: "none", cursor: "pointer", fontFamily: "inherit",
                     }}
                   >
-                    {deletingId === proj.id ? "Deletingâ€¦" : "Confirm delete"}
+                    {deletingId === proj.id ? "Deleting..." : "Confirm delete"}
                   </button>
                   <button
                     onClick={() => setConfirmId(null)}

@@ -97,7 +97,7 @@ export default function DashboardPage() {
           fontFamily: "DM Sans, system-ui, sans-serif",
           fontWeight: 900, fontSize: "2rem", color: "#f0f0f0", margin: "0 0 6px",
         }}>
-          Hey, {profile?.full_name?.split(" ")[0] || "Builder"} ðŸ‘‹
+          Hey, {profile?.full_name?.split(" ")[0] || "Builder"}
         </h1>
         <p style={{ color: "#888888", fontSize: "0.9375rem", margin: 0 }}>
           Welcome back to your dashboard.
@@ -152,7 +152,7 @@ export default function DashboardPage() {
               fontFamily: "DM Sans, system-ui, sans-serif",
               fontSize: "2rem", fontWeight: 700, color: "#f0f0f0", lineHeight: 1,
             }}>
-              {loading ? "â€”" : s.value}
+              {loading ? "-" : s.value}
             </span>
           </div>
         ))}

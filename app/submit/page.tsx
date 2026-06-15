@@ -408,7 +408,7 @@ export default function SubmitPage() {
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
                     <span style={{ fontSize: "0.8125rem", color: "#888888", fontWeight: 500 }}>
-                      {cohort.universities?.name} {cohort.scope === "faculty" && cohort.faculty_name ? `Â· ${cohort.faculty_name}` : ""}
+                      {cohort.universities?.name} {cohort.scope === "faculty" && cohort.faculty_name ? `· ${cohort.faculty_name}` : ""}
                     </span>
                     {isUserSchool && (
                       <Badge variant="accent" style={{ fontSize: "0.6875rem", padding: "2px 8px" }}>Your school</Badge>
@@ -419,15 +419,15 @@ export default function SubmitPage() {
                   </h3>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", fontSize: "0.8rem", color: "#888888" }}>
                     <span>
-                      {new Date(cohort.start_date).toLocaleDateString("en-NG", { month: "short", day: "numeric" })} â€” {new Date(cohort.end_date).toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}
+                      {new Date(cohort.start_date).toLocaleDateString("en-NG", { month: "short", day: "numeric" })} - {new Date(cohort.end_date).toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
-                    <span>Â·</span>
+                    <span>·</span>
                     <span style={{ color: "#14F195", fontWeight: 500 }}>
                       Ends in {countdown.days}d {countdown.hours}h
                     </span>
                     {prizePoolTotal > 0 && (
                       <>
-                        <span>Â·</span>
+                        <span>·</span>
                         <span style={{ color: "#ffba08", fontWeight: 500 }}>${prizePoolTotal} Pool</span>
                       </>
                     )}

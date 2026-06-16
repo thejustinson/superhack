@@ -18,10 +18,11 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyMessage?: string;
   actions?: (row: T) => React.ReactNode;
+  onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T extends Record<string, any>>({
-  columns, data, keyField, loading, emptyMessage = "No records found.", actions,
+  columns, data, keyField, loading, emptyMessage = "No records found.", actions, onRowClick,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -119,7 +120,11 @@ export function DataTable<T extends Record<string, any>>({
             ) : (
               sorted.map((row) => (
                 <tr key={String(row[keyField])}
-                  style={{ transition: "background 0.12s" }}
+                  onClick={() => onRowClick?.(row)}
+                  style={{
+                    transition: "background 0.12s",
+                    cursor: onRowClick ? "pointer" : "default",
+                  }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.02)")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >

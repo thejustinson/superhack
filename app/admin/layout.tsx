@@ -16,6 +16,7 @@ const BREADCRUMBS: Record<string, string> = {
   projects: "Projects",
   users: "Users",
   applications: "Applications",
+  learn: "Learn",
 };
 
 function Topbar() {

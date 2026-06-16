@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: '/hackathons',    label: 'Hackathons' },
   { href: '/universities',  label: 'Universities' },
   { href: '/ideas',         label: 'Ideas' },
+  { href: '/learn',         label: 'Learn' },
   { href: '/docs',          label: 'Docs' },
 ]
 

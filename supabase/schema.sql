@@ -243,3 +243,87 @@ $$ language plpgsql;
 -- Schedule cron job every hour if cron extension is enabled
 -- select cron.schedule('sync-cohort-status', '0 * * * *', 'select sync_cohort_status()');
 
+
+-- ============================================================
+-- Learn Section Tables & RLS Policies
+-- ============================================================
+
+-- Topics (modules/courses)
+create table if not exists learn_topics (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text unique not null,
+  description text,
+  cover_image_url text,
+  order_index integer default 0,
+  is_published boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Lessons within a topic
+create table if not exists learn_lessons (
+  id uuid primary key default gen_random_uuid(),
+  topic_id uuid references learn_topics(id) on delete cascade,
+  title text not null,
+  slug text unique not null,
+  mdx_content text,
+  order_index integer default 0,
+  is_published boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Quizzes attached to a lesson
+create table if not exists learn_quizzes (
+  id uuid primary key default gen_random_uuid(),
+  lesson_id uuid references learn_lessons(id) on delete cascade,
+  question text not null,
+  type text check (type in ('multiple_choice', 'true_false', 'code_challenge')) not null,
+  options jsonb,
+  correct_answer text not null,
+  explanation text,
+  order_index integer default 0,
+  created_at timestamptz default now()
+);
+
+-- Track user progress
+create table if not exists learn_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  lesson_id uuid references learn_lessons(id) on delete cascade,
+  completed boolean default false,
+  quiz_passed boolean default false,
+  completed_at timestamptz,
+  unique(user_id, lesson_id)
+);
+
+-- RLS
+alter table learn_topics enable row level security;
+alter table learn_lessons enable row level security;
+alter table learn_quizzes enable row level security;
+alter table learn_progress enable row level security;
+
+-- Create policies
+create policy "learn_topics_read_published" on learn_topics for select using (is_published = true);
+create policy "learn_lessons_read_published" on learn_lessons for select using (is_published = true);
+create policy "learn_quizzes_read_all" on learn_quizzes for select using (true);
+create policy "learn_progress_own" on learn_progress for all using (auth.uid() = user_id);
+
+-- Admin write policies
+create policy "learn_topics_admin" on learn_topics for all
+  using (exists (select 1 from profiles where id = auth.uid() and is_admin = true));
+create policy "learn_lessons_admin" on learn_lessons for all
+  using (exists (select 1 from profiles where id = auth.uid() and is_admin = true));
+create policy "learn_quizzes_admin" on learn_quizzes for all
+  using (exists (select 1 from profiles where id = auth.uid() and is_admin = true));
+
+-- Seed first topic
+insert into learn_topics (title, slug, description, order_index, is_published)
+values (
+  'Introduction to Solana',
+  'intro-to-solana',
+  'Start here. Learn what Solana is, why it matters, and how it works — no prior blockchain experience needed.',
+  1,
+  true
+) on conflict (slug) do nothing;
+
+

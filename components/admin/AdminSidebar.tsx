@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, University, Zap, Lightbulb,
   FolderKanban, Users, ChevronLeft, ChevronRight,
-  Shield, ClipboardList,
+  Shield, ClipboardList, BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/admin/projects", label: "Projects", icon: FolderKanban },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/applications", label: "Applications", icon: ClipboardList },
+  { href: "/admin/learn", label: "Learn", icon: BookOpen },
 ];
 
 export function AdminSidebar() {

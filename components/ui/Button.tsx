@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 
-type ButtonVariant = "primary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "ghost" | "danger" | "secondary";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface BaseProps {
@@ -30,6 +30,7 @@ type ButtonProps = ButtonElementProps | LinkProps;
 const variantBase: Record<ButtonVariant, React.CSSProperties> = {
   primary: { backgroundColor: "#ffba08", color: "#0b0c0f" },
   ghost: { backgroundColor: "transparent", color: "#f0f0f0", border: "1px solid rgba(255,255,255,0.12)" },
+  secondary: { backgroundColor: "transparent", color: "#f0f0f0", border: "1px solid rgba(255,255,255,0.15)" },
   danger: { backgroundColor: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" },
 };
 

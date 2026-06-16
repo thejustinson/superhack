@@ -77,6 +77,7 @@ export function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
+                className="footer-link"
                 style={{
                   fontSize: "0.875rem",
                   color: "#666666",
@@ -84,8 +85,6 @@ export function Footer() {
                   fontFamily: "var(--font-dm-sans), sans-serif",
                   transition: "color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#f0f0f0")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#666666")}
               >
                 {link.label}
               </Link>
@@ -118,6 +117,7 @@ export function Footer() {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
+                className="footer-link footer-link--power"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -128,8 +128,6 @@ export function Footer() {
                   fontFamily: "var(--font-dm-sans), sans-serif",
                   transition: "color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#c0c0c0")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#666666")}
               >
                 {item.dot && (
                   <span
@@ -184,6 +182,18 @@ export function Footer() {
       </div>
 
       <style>{`
+        .footer-link {
+          color: #666666;
+        }
+
+        .footer-link:hover {
+          color: #f0f0f0;
+        }
+
+        .footer-link--power:hover {
+          color: #c0c0c0;
+        }
+
         @media (max-width: 720px) {
           .footer-grid {
             grid-template-columns: 1fr !important;

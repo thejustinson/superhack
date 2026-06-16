@@ -157,6 +157,65 @@ export interface Database {
         Update: Partial<Omit<Database["public"]["Tables"]["host_applications"]["Row"], "id" | "created_at">>;
         Relationships: [];
       };
+      learn_topics: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          description: string | null;
+          cover_image_url: string | null;
+          order_index: number;
+          is_published: boolean;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["learn_topics"]["Row"], "id" | "created_at"> & { id?: string };
+        Update: Partial<Database["public"]["Tables"]["learn_topics"]["Insert"]>;
+        Relationships: [];
+      };
+      learn_lessons: {
+        Row: {
+          id: string;
+          topic_id: string;
+          title: string;
+          slug: string;
+          mdx_content: string | null;
+          order_index: number;
+          is_published: boolean;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["learn_lessons"]["Row"], "id" | "created_at"> & { id?: string };
+        Update: Partial<Database["public"]["Tables"]["learn_lessons"]["Insert"]>;
+        Relationships: [];
+      };
+      learn_quizzes: {
+        Row: {
+          id: string;
+          lesson_id: string;
+          question: string;
+          type: "multiple_choice" | "true_false" | "code_challenge";
+          options: Json;
+          correct_answer: string;
+          explanation: string | null;
+          order_index: number;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["learn_quizzes"]["Row"], "id" | "created_at"> & { id?: string };
+        Update: Partial<Database["public"]["Tables"]["learn_quizzes"]["Insert"]>;
+        Relationships: [];
+      };
+      learn_progress: {
+        Row: {
+          id: string;
+          user_id: string;
+          lesson_id: string;
+          completed: boolean;
+          quiz_passed: boolean;
+          completed_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["learn_progress"]["Row"], "id"> & { id?: string };
+        Update: Partial<Database["public"]["Tables"]["learn_progress"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: {};
     Functions: {

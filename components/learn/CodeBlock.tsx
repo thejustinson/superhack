@@ -2,17 +2,21 @@
 
 import React, { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { RenderedDiagram } from "./RenderedDiagram";
 
 interface CodeBlockProps {
   language?: string;
-  code: string;
+  code?: string;
+  children?: string;
 }
 
-export function CodeBlock({ language = "typescript", code }: CodeBlockProps) {
+export function CodeBlock({ language = "typescript", code, children }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const cleanCode = (code || children || "").trim();
 
-  // Normalize code content
-  const cleanCode = code.trim();
+  if (language === "diagram") {
+    return <RenderedDiagram content={cleanCode} />;
+  }
 
   const handleCopy = async () => {
     try {

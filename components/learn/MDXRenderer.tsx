@@ -127,6 +127,24 @@ export const MDX_COMPONENTS = {
       {...props}
     />
   ),
+  table: (props: any) => (
+    <div style={{ overflowX: "auto", margin: "24px 0", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.07)" }}>
+      <table style={{ width: "100%", fontSize: "0.875rem", borderCollapse: "collapse" }} {...props} />
+    </div>
+  ),
+  thead: (props: any) => (
+    <thead style={{ backgroundColor: "#111318", borderBottom: "1px solid rgba(255, 255, 255, 0.07)" }} {...props} />
+  ),
+  th: (props: any) => (
+    <th style={{ textAlign: "left", padding: "12px 16px", fontWeight: 600, color: "#f0f0f0" }} {...props} />
+  ),
+  tbody: (props: any) => <tbody {...props} />,
+  tr: (props: any) => (
+    <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }} {...props} />
+  ),
+  td: (props: any) => (
+    <td style={{ padding: "12px 16px", color: "#888888" }} {...props} />
+  ),
   
   // Custom blocks
   Callout: (props: any) => <Callout {...props} />,

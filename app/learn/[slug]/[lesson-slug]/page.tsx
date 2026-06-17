@@ -6,6 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MDX_COMPONENTS } from "@/components/learn/MDXRenderer";
 import LessonClientView from "@/components/learn/LessonClientView";
+import remarkGfm from "remark-gfm";
 
 interface PageProps {
   params: Promise<{
@@ -95,6 +96,11 @@ export default async function LessonPage({ params }: PageProps) {
         <MDXRemote
           source={lesson.mdx_content || ""}
           components={MDX_COMPONENTS}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+            },
+          }}
         />
       </LessonClientView>
       <Footer />

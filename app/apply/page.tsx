@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -45,8 +45,8 @@ const BENEFITS = [
   },
   {
     icon: Trophy,
-    title: "Real prizes for your students",
-    desc: "Winners receive cash prizes funded by Superteam Nigeria - $100, $70, and $50 for top projects.",
+    title: "Up to $100 toward school fees for your top 2 builders",
+    desc: "The top 2 builders in each cohort receive up to $100 each toward their school fees, paid in USDC on Solana.",
   },
   {
     icon: Globe,

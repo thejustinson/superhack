@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Calendar, Trophy } from "lucide-react";
 import { Badge } from "./Badge";
 import type { CohortWithUniversity } from "@/lib/supabase";
@@ -14,8 +14,14 @@ function formatDate(d: string | null) {
 }
 
 function getPrizeTotal(prizePool: unknown): number {
-  if (!prizePool || typeof prizePool !== "object") return 0;
-  return Object.values(prizePool as Record<string, number>).reduce((a, b) => a + b, 0);
+  if (!prizePool) return 0;
+  if (Array.isArray(prizePool)) {
+    return prizePool.reduce((sum, item) => sum + (Number(item?.amount) || 0), 0);
+  }
+  if (typeof prizePool === "object") {
+    return Object.values(prizePool as Record<string, number>).reduce((a, b) => a + (Number(b) || 0), 0);
+  }
+  return 0;
 }
 
 export function CohortCard({ cohort }: CohortCardProps) {
@@ -92,7 +98,7 @@ export function CohortCard({ cohort }: CohortCardProps) {
         {prizeTotal > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.8125rem", color: "#888888" }}>
             <Trophy size={13} />
-            <span>${prizeTotal} prize pool</span>
+            <span>2 × $100 school fees contribution</span>
           </div>
         )}
       </div>

@@ -281,6 +281,8 @@ create table if not exists learn_quizzes (
   options jsonb,
   correct_answer text not null,
   explanation text,
+  function_name text,
+  test_input jsonb default '[]',
   order_index integer default 0,
   created_at timestamptz default now()
 );
@@ -325,5 +327,14 @@ values (
   1,
   true
 ) on conflict (slug) do nothing;
+
+-- Migrations
+alter table learn_quizzes add column if not exists function_name text;
+alter table learn_quizzes add column if not exists test_input jsonb default '[]';
+
+-- University verification migrations
+alter table profiles add column if not exists university_verification_code text;
+alter table profiles add column if not exists university_verification_expires_at timestamptz;
+alter table profiles add column if not exists pending_university_email text;
 
 

@@ -18,6 +18,8 @@ interface Quiz {
   options: any;
   correct_answer: string;
   explanation: string | null;
+  function_name?: string | null;
+  test_input?: any;
   order_index: number;
   created_at: string;
 }
@@ -70,6 +72,10 @@ export default function AdminQuizzesPage({
   const [deleteTarget, setDeleteTarget] = useState<Quiz | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+
+  // Code challenge new states
+  const [functionName, setFunctionName] = useState("");
+  const [testInputRaw, setTestInputRaw] = useState("[]");
 
   // SlideOver Form state fields
   const [question, setQuestion] = useState("");
@@ -136,6 +142,8 @@ export default function AdminQuizzesPage({
     setCodeLanguage("javascript");
     setCodeStarter("");
     setCodeExpected("");
+    setFunctionName("");
+    setTestInputRaw("[]");
 
     setError("");
     setSlideOpen(true);
@@ -167,6 +175,8 @@ export default function AdminQuizzesPage({
       setCodeLanguage(parsedOptions.language ?? "javascript");
       setCodeStarter(parsedOptions.starterCode ?? "");
       setCodeExpected(row.correct_answer);
+      setFunctionName(row.function_name ?? "");
+      setTestInputRaw(row.test_input ? (typeof row.test_input === "string" ? row.test_input : JSON.stringify(row.test_input)) : "[]");
     }
 
     setError("");
@@ -221,12 +231,31 @@ export default function AdminQuizzesPage({
         setSaving(false);
         return;
       }
+      if ((codeLanguage === "javascript" || codeLanguage === "typescript") && !functionName.trim()) {
+        setError("Function to test name is required for JS/TS challenges.");
+        setSaving(false);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(testInputRaw || "[]");
+        if (!Array.isArray(parsed)) {
+          setError("Test input must be a JSON array (e.g. [2500000000]).");
+          setSaving(false);
+          return;
+        }
+      } catch (err) {
+        setError("Test input must be a valid JSON array.");
+        setSaving(false);
+        return;
+      }
       optionsPayload = {
         language: codeLanguage,
         starterCode: codeStarter,
       };
       correctAnswerPayload = codeExpected;
     }
+
+    const parsedInput = type === "code_challenge" ? JSON.parse(testInputRaw || "[]") : null;
 
     const payload = {
       lesson_id: lessonId,
@@ -235,6 +264,8 @@ export default function AdminQuizzesPage({
       options: optionsPayload,
       correct_answer: correctAnswerPayload,
       explanation: explanation || null,
+      function_name: type === "code_challenge" ? functionName.trim() : null,
+      test_input: type === "code_challenge" ? parsedInput : null,
       order_index: orderIndex,
     };
 
@@ -580,6 +611,34 @@ export default function AdminQuizzesPage({
                   onChange={(e) => setCodeStarter(e.target.value)}
                   placeholder="// starter template here..."
                 />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Function to test (required for JS/TS)</label>
+                <input
+                  type="text"
+                  style={inputStyle}
+                  value={functionName}
+                  onChange={(e) => setFunctionName(e.target.value)}
+                  placeholder="e.g. formatBalance"
+                />
+                <span style={{ fontSize: "0.7rem", color: "#888888", display: "block", marginTop: "4px" }}>
+                  The exact function name the runner should call after the student's code executes.
+                </span>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Test input (JSON array, required for JS/TS)</label>
+                <input
+                  type="text"
+                  style={inputStyle}
+                  value={testInputRaw}
+                  onChange={(e) => setTestInputRaw(e.target.value)}
+                  placeholder="e.g. [2500000000]"
+                />
+                <span style={{ fontSize: "0.7rem", color: "#888888", display: "block", marginTop: "4px" }}>
+                  Arguments to call the student's function with, as a JSON array. Example: [2500000000] calls functionName(2500000000).
+                </span>
               </div>
 
               <div>

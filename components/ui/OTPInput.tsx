@@ -77,15 +77,25 @@ export function OTPInput({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
-    if (pasteData) {
-      onChange(pasteData);
-      if (pasteData.length === length && onComplete) {
-        onComplete(pasteData);
-      }
-      const targetIndex = Math.min(pasteData.length, length - 1);
-      inputRefs.current[targetIndex]?.focus();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
+    if (!pasted) return;
+
+    const newDigits = [...digits];
+    pasted.split("").forEach((char, i) => {
+      newDigits[i] = char;
+    });
+
+    setDigits(newDigits);
+    const fullValue = newDigits.join("");
+    onChange(fullValue);
+
+    if (pasted.length === length && onComplete) {
+      onComplete(pasted);
     }
+
+    // Focus the box after the last pasted digit, or the last box if all length filled
+    const nextIndex = Math.min(pasted.length, length - 1);
+    inputRefs.current[nextIndex]?.focus();
   };
 
   const boxStyle: React.CSSProperties = {

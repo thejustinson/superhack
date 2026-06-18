@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -170,8 +170,14 @@ export default function SubmitPage() {
 
   // Form helpers
   const getPrizeTotal = (prizePool: any): number => {
-    if (!prizePool || typeof prizePool !== "object") return 0;
-    return Object.values(prizePool as Record<string, number>).reduce((a, b) => a + b, 0);
+    if (!prizePool) return 0;
+    if (Array.isArray(prizePool)) {
+      return prizePool.reduce((sum, item) => sum + (Number(item?.amount) || 0), 0);
+    }
+    if (typeof prizePool === "object") {
+      return Object.values(prizePool as Record<string, number>).reduce((a, b) => a + (Number(b) || 0), 0);
+    }
+    return 0;
   };
 
   const getInputFieldStyle = (field: string): React.CSSProperties => {

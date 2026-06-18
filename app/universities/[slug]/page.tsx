@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -464,7 +464,7 @@ export default function UniversityDetailPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                       {winners.map((project, index) => {
                         const rankLabel = index === 0 ? "1st Place" : index === 1 ? "2nd Place" : "3rd Place";
-                        const prizeAmount = index === 0 ? "$100" : index === 1 ? "$70" : "$50";
+                        const prizeAmount = "$100 school fees contribution";
                         return (
                           <div key={project.id} style={{
                             backgroundColor: "#111318", border: "1px solid rgba(255,255,255,0.07)",
@@ -474,10 +474,10 @@ export default function UniversityDetailPage() {
                             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                               <div style={{
                                 width: "40px", height: "40px", borderRadius: "50%",
-                                backgroundColor: index === 0 ? "rgba(255,186,8,0.15)" : "rgba(255,255,255,0.05)",
+                                backgroundColor: index <= 1 ? "rgba(255,186,8,0.15)" : "rgba(255,255,255,0.05)",
                                 display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center"
                               }}>
-                                <Medal size={18} style={{ color: index === 0 ? "#ffba08" : "#888888" }} />
+                                <Medal size={18} style={{ color: index <= 1 ? "#ffba08" : "#888888" }} />
                               </div>
                               <div>
                                 <span style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "#ffba08", fontWeight: 600 }}>{rankLabel} ({prizeAmount})</span>

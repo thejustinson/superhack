@@ -48,10 +48,8 @@ const SECTION_SURFACE: React.CSSProperties = {
 };
 
 const prizes = [
-  { rank: "1st Place", amount: "$100", desc: "Best overall - technical excellence & impact", hot: true },
-  { rank: "2nd Place", amount: "$70", desc: "Runner-up - strong execution and creativity", hot: false },
-  { rank: "3rd Place", amount: "$50", desc: "Third place - solid build and presentation", hot: false },
-  { rank: "Community Vote", amount: "$30", desc: "Voted best project by the Superhack community", hot: false },
+  { rank: "1st Place", amount: "$100", desc: "Contribution toward your school fees, paid in USDC.", hot: false },
+  { rank: "2nd Place", amount: "$100", desc: "Contribution toward your school fees, paid in USDC.", hot: false },
 ];
 
 const steps = [
@@ -226,7 +224,7 @@ export default function HomePage() {
             display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center",
             gap: "12px 32px",
           }}>
-            {["$250 prize pool per hackathon", "2-week format", "Solana-powered"].map((stat, i, arr) => (
+            {["$100 school fees contribution · 2 winners per cohort", "2-week format", "Solana-powered"].map((stat, i, arr) => (
               <span key={stat} style={{ display: "flex", alignItems: "center", gap: "32px" }}>
                 <span style={{ fontSize: "0.875rem", color: "#666666", fontFamily: "var(--font-dm-sans), sans-serif" }}>
                   {stat}
@@ -467,10 +465,10 @@ export default function HomePage() {
                 fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
                 fontWeight: 900, letterSpacing: "-0.03em", color: "#f0f0f0", margin: "0 0 12px",
               }}>
-                Real prizes. Real builders.
+                We're paying school fees.
               </h2>
               <p style={{ color: "#888888", margin: 0, fontSize: "1rem" }}>
-                Paid out in USDC to your Solana wallet on demo day.
+                The top 2 builders in each cohort receive up to $100 each — a contribution toward their school fees, paid in USDC on Solana.
               </p>
             </motion.div>
 
@@ -517,6 +515,11 @@ export default function HomePage() {
                   </p>
                 </motion.div>
               ))}
+            </div>
+            <div style={{ marginTop: "32px", textAlign: "center" }}>
+              <p style={{ fontSize: "0.75rem", color: "#666666", margin: 0, fontFamily: "var(--font-dm-sans), sans-serif", lineHeight: 1.5 }}>
+                Prizes are capped at $100 per winner and paid in USDC on Solana after the Superhack demo day. Winners are selected by the Superteam Nigeria team.
+              </p>
             </div>
           </div>
         </section>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -11,6 +11,11 @@ import { ScopeToggle } from "@/components/admin/ScopeToggle";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
+const DEFAULT_PRIZE_POOL = [
+  { place: "1st", amount: 100, description: "School fees contribution" },
+  { place: "2nd", amount: 100, description: "School fees contribution" }
+];
+
 const EMPTY = {
   university_id: "",
   title: "",
@@ -18,7 +23,7 @@ const EMPTY = {
   status: "upcoming" as Cohort["status"],
   start_date: "" as string | null,
   end_date: "" as string | null,
-  prize_pool: {} as any,
+  prize_pool: DEFAULT_PRIZE_POOL,
   scope: "university" as "university" | "faculty",
   faculty_name: "" as string | null,
   faculty_logo_url: "" as string | null,
@@ -77,6 +82,22 @@ export default function AdminHackathonsPage() {
   }
 
   function openEdit(row: Cohort) {
+    let pool: any = row.prize_pool;
+    if (!pool || !Array.isArray(pool)) {
+      if (pool && typeof pool === "object") {
+        pool = Object.entries(pool).map(([place, amount]) => ({
+          place,
+          amount: Number(amount) || 0,
+          description: "School fees contribution"
+        }));
+      } else {
+        pool = [
+          { place: "1st", amount: 100, description: "School fees contribution" },
+          { place: "2nd", amount: 100, description: "School fees contribution" }
+        ];
+      }
+    }
+
     setEditing(row);
     setForm({
       university_id: row.university_id,
@@ -85,7 +106,7 @@ export default function AdminHackathonsPage() {
       status: row.status,
       start_date: row.start_date ?? "",
       end_date: row.end_date ?? "",
-      prize_pool: row.prize_pool ?? {},
+      prize_pool: pool,
       scope: (row.scope as "university" | "faculty") ?? "university",
       faculty_name: row.faculty_name ?? "",
       faculty_logo_url: row.faculty_logo_url ?? "",
@@ -258,6 +279,40 @@ export default function AdminHackathonsPage() {
                 value={form.end_date ?? ""}
                 onChange={(e) => set("end_date", e.target.value)}
               />
+            </div>
+          </div>
+
+          {/* Prize pool configuration */}
+          <div>
+            <label style={labelStyle}>Prize Pool (School fees contribution)</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {Array.isArray(form.prize_pool) && form.prize_pool.map((item: any, idx: number) => (
+                <div key={idx} style={{ display: "grid", gridTemplateColumns: "70px 100px 1fr", gap: "8px", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.8125rem", color: "#f0f0f0", fontWeight: 600 }}>{item.place} Place</span>
+                  <input
+                    type="number"
+                    style={inputStyle}
+                    value={item.amount}
+                    onChange={(e) => {
+                      const nextPool = [...form.prize_pool];
+                      nextPool[idx] = { ...nextPool[idx], amount: Number(e.target.value) || 0 };
+                      setForm((f) => ({ ...f, prize_pool: nextPool }));
+                    }}
+                    placeholder="100"
+                  />
+                  <input
+                    type="text"
+                    style={inputStyle}
+                    value={item.description || ""}
+                    onChange={(e) => {
+                      const nextPool = [...form.prize_pool];
+                      nextPool[idx] = { ...nextPool[idx], description: e.target.value };
+                      setForm((f) => ({ ...f, prize_pool: nextPool }));
+                    }}
+                    placeholder="Description"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -194,22 +194,25 @@ export default function HackathonDetailPage() {
             <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Prize Breakdown</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
               {[
-                { place: "1st Place", prize: "$100", label: "Best Overall Program" },
-                { place: "2nd Place", prize: "$70", label: "Runner-Up Design/Logic" },
-                { place: "3rd Place", prize: "$50", label: "Third Place Submission" },
-                { place: "Community Vote", prize: "$30", label: "Voted Best Project" },
-              ].map((p, idx) => (
+                { place: "1st Place", prize: "$100", label: "School fees contribution" },
+                { place: "2nd Place", prize: "$100", label: "School fees contribution" },
+              ].map((p) => (
                 <div key={p.place} style={{
-                  backgroundColor: idx === 0 ? "rgba(255,186,8,0.06)" : "#111318",
-                  border: idx === 0 ? "1px solid rgba(255,186,8,0.2)" : "1px solid rgba(255,255,255,0.07)",
+                  backgroundColor: "#111318",
+                  border: "1px solid rgba(255,255,255,0.07)",
                   borderRadius: "8px", padding: "24px", textAlign: "center"
                 }}>
-                  <Award size={20} style={{ color: idx === 0 ? "#ffba08" : "#888888", margin: "0 auto 12px" }} />
+                  <Award size={20} style={{ color: "#888888", margin: "0 auto 12px" }} />
                   <span style={{ fontSize: "0.75rem", color: "#888888", textTransform: "uppercase", letterSpacing: "0.05em", display: "block" }}>{p.place}</span>
-                  <span style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "2rem", fontWeight: 900, color: idx === 0 ? "#ffba08" : "#f0f0f0", display: "block", margin: "6px 0" }}>{p.prize}</span>
+                  <span style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "2rem", fontWeight: 900, color: "#f0f0f0", display: "block", margin: "6px 0" }}>{p.prize}</span>
                   <span style={{ fontSize: "0.8125rem", color: "#888888" }}>{p.label}</span>
                 </div>
               ))}
+            </div>
+            <div style={{ marginTop: "24px", textAlign: "center" }}>
+              <p style={{ fontSize: "0.75rem", color: "#666666", margin: 0, fontFamily: "var(--font-dm-sans), sans-serif", lineHeight: 1.5 }}>
+                Contributions are capped at $100 per winner and paid in USDC on Solana. Winners are selected by the Superteam Nigeria judging panel.
+              </p>
             </div>
           </section>
 

@@ -12,6 +12,8 @@ interface QuizData {
   options: any; // Options builder array or JSON
   correct_answer: string;
   explanation?: string | null;
+  function_name?: string | null;
+  test_input?: any;
   order_index: number;
 }
 
@@ -105,6 +107,19 @@ export function Quiz({ quizzes, onAllPassed }: QuizProps) {
             const language = parsedOptions?.language ?? "javascript";
             const starterCode = parsedOptions?.starterCode ?? "";
 
+            let testInput: any[] = [];
+            if (quiz.test_input) {
+              if (Array.isArray(quiz.test_input)) {
+                testInput = quiz.test_input;
+              } else if (typeof quiz.test_input === "string") {
+                try {
+                  testInput = JSON.parse(quiz.test_input);
+                } catch {
+                  testInput = [];
+                }
+              }
+            }
+
             return (
               <CodeChallenge
                 key={quiz.id}
@@ -113,6 +128,8 @@ export function Quiz({ quizzes, onAllPassed }: QuizProps) {
                 explanation={quiz.explanation}
                 language={language}
                 starterCode={starterCode}
+                functionName={quiz.function_name}
+                testInput={testInput}
                 isPassed={passedMap[quiz.id]}
                 onPass={(passed) => handleQuizPass(quiz.id, passed)}
               />

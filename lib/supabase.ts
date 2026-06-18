@@ -47,6 +47,9 @@ export interface Database {
           twitter_url: string | null;
           github_url: string | null;
           website_url: string | null;
+          university_verification_code: string | null;
+          university_verification_expires_at: string | null;
+          pending_university_email: string | null;
         };
         Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at"> & { id: string };
         Update: Partial<Omit<Database["public"]["Tables"]["profiles"]["Row"], "id" | "created_at">>;
@@ -196,6 +199,8 @@ export interface Database {
           options: Json;
           correct_answer: string;
           explanation: string | null;
+          function_name: string | null;
+          test_input: Json | null;
           order_index: number;
           created_at: string;
         };

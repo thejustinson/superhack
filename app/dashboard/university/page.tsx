@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -297,10 +297,10 @@ function VerificationFlow() {
     setDetectedUni(uni);
 
     try {
-      const res = await fetch("/api/verify-university", {
+      const res = await fetch("/api/university/send-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ universityEmail: uniEmail.trim().toLowerCase(), userId: user.id }),
+        body: JSON.stringify({ universityEmail: uniEmail.trim().toLowerCase() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send code");
@@ -319,14 +319,11 @@ function VerificationFlow() {
     setVerificationError("");
 
     try {
-      const res = await fetch("/api/verify-university", {
-        method: "PUT",
+      const res = await fetch("/api/university/verify", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          universityEmail: uniEmail.trim().toLowerCase(),
-          token: verificationCode,
-          userId: user.id,
-          universityId: detectedUni.id,
+          code: verificationCode,
         }),
       });
       const data = await res.json();

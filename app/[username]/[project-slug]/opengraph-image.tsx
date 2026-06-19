@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { createClient } from "@supabase/supabase-js";
+import { getLogoDataUri } from "@/lib/og-logo";
 
 export const runtime = "nodejs";
 export const alt = "Superhack Project";
@@ -11,13 +12,21 @@ export default async function Image({
 }: {
   params: Promise<{ username: string; "project-slug": string }>;
 }) {
+  const logoUri = getLogoDataUri();
+
   const fallbackResponse = new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px", backgroundColor: "#0b0c0f" }}>
-        <div style={{ fontSize: 64, fontWeight: 800, color: "#f0f0f0" }}>
-          Superhack
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 40 }}>
+          <img src={logoUri} width={32} height={32} style={{ display: "flex" }} />
+          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "#f0f0f0" }}>
+            Superhack
+          </div>
         </div>
-        <div style={{ fontSize: 28, color: "#888888", marginTop: 16 }}>
+        <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: "#f0f0f0" }}>
+          Build on Solana
+        </div>
+        <div style={{ display: "flex", fontSize: 28, color: "#888888", marginTop: 16 }}>
           The campus hackathon for Solana builders.
         </div>
       </div>
@@ -61,9 +70,16 @@ export default async function Image({
             backgroundSize: "28px 28px",
           }}
         >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 40 }}>
+            <img src={logoUri} width={32} height={32} style={{ display: "flex" }} />
+            <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "#f0f0f0" }}>
+              Superhack
+            </div>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 32 }}>
             <div
               style={{
+                display: "flex",
                 fontSize: 14,
                 color: "#ffba08",
                 border: "1px solid rgba(255,186,8,0.3)",
@@ -76,13 +92,13 @@ export default async function Image({
               Superhack Project
             </div>
           </div>
-          <div style={{ fontSize: 64, fontWeight: 800, color: "#f0f0f0", marginBottom: 16 }}>
+          <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: "#f0f0f0", marginBottom: 16 }}>
             {(project as any)?.name ?? "Untitled Project"}
           </div>
-          <div style={{ fontSize: 28, color: "#888888", marginBottom: 32 }}>
+          <div style={{ display: "flex", fontSize: 28, color: "#888888", marginBottom: 32 }}>
             {(project as any)?.tagline ?? ""}
           </div>
-          <div style={{ fontSize: 22, color: "#555555" }}>
+          <div style={{ display: "flex", fontSize: 22, color: "#555555" }}>
             by {(project as any)?.profiles?.full_name ?? "Anonymous"} · {(project as any)?.cohorts?.universities?.name ?? ""}
           </div>
         </div>

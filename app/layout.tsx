@@ -6,12 +6,12 @@ import { ourFileRouter } from "@/app/api/uploadthing/core";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Superhack — Build on Solana. Get paid.", template: "%s | Superhack" },
-  description: "A Superteam Nigeria hackathon initiative. Learn Solana, ship a real project, and compete for prizes.",
-  keywords: ["Solana", "hackathon", "Superteam Nigeria", "blockchain", "web3", "Nigeria"],
+  title: "Superhack",
+  description: "Superhack is the campus hackathon for Solana builders in Nigeria. One week to build, one week to judge. Powered by Solana, Superteam, and Superteam Nigeria.",
+  keywords: ["Solana", "hackathon", "Superteam", "Superteam Nigeria", "blockchain", "web3", "Nigeria"],
   openGraph: {
     title: "Superhack",
-    description: "The campus hackathon for Solana builders.",
+    description: "Superhack is the campus hackathon for Solana builders in Nigeria. One week to build, one week to judge. Powered by Solana, Superteam, and Superteam Nigeria.",
     url: "https://superhack.fun",
     siteName: "Superhack",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Superhack",
-    description: "The campus hackathon for Solana builders.",
+    description: "Superhack is the campus hackathon for Solana builders in Nigeria. One week to build, one week to judge. Powered by Solana, Superteam, and Superteam Nigeria.",
     images: ["https://superhack.fun/og-image.png"],
   },
   icons: {

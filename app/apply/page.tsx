@@ -140,7 +140,7 @@ export default function ApplyPage() {
                 <motion.p variants={fadeUp} style={{
                   color: "#888888", fontSize: "1rem", lineHeight: 1.65, margin: 0,
                 }}>
-                  A two-week intensive program: 1 week to build, 1 week to judge. Culminates in real cash prizes funded by Superteam Nigeria.
+                  A two-week intensive program: 1 week to build, 1 week to judge. Culminates in cash prizes, powered by Solana, Superteam, and Superteam Nigeria.
                 </motion.p>
               </div>
 

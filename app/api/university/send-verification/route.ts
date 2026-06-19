@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { matchUniversityByDomain } from "@/lib/universities";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -59,6 +60,25 @@ export async function POST(req: Request) {
         },
       }
     );
+
+    // Verify domain belongs to a partner university
+    const submittedDomain = universityEmail.split("@")[1]?.toLowerCase();
+    if (!submittedDomain) {
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    }
+
+    const { data: universities } = await supabase
+      .from("universities")
+      .select("id, email_domain");
+
+    const matchedUniversity = matchUniversityByDomain(submittedDomain, universities || []);
+
+    if (!matchedUniversity) {
+      return NextResponse.json(
+        { error: `We couldn't find a registered university with the domain "${submittedDomain}". Contact support to add yours!` },
+        { status: 400 }
+      );
+    }
 
     // Rate limiting check
     const { data: profile } = await supabase

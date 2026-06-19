@@ -71,3 +71,17 @@ export async function getActiveCohortForUniversity(universityId: string): Promis
     .maybeSingle();
   return data ?? null;
 }
+
+export function matchUniversityByDomain<T extends { email_domain: string | null }>(
+  submittedDomain: string,
+  universities: T[]
+): T | undefined {
+  return universities.find((uni) => {
+    if (!uni.email_domain) return false;
+    return (
+      submittedDomain === uni.email_domain ||
+      submittedDomain.endsWith(`.${uni.email_domain}`)
+    );
+  });
+}
+

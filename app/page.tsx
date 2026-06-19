@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import Link from "next/link";
 import type { Idea } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 // Animation helpers
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -66,6 +67,7 @@ function difficultyColor(d?: string | null) {
 }
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [featuredCohort, setFeaturedCohort] = useState<any>(null);
   const [cohortLoading, setCohortLoading] = useState(true);
   const [ideas, setIdeas] = useState<Idea[]>([]);
@@ -174,7 +176,7 @@ export default function HomePage() {
 
             {/* CTAs */}
             <motion.div {...fadeUp(0.5)} style={{ display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center", marginBottom: "28px" }}>
-              <Link href="/auth" style={{
+              <Link href={user ? "/dashboard" : "/auth"} style={{
                 display: "inline-flex", alignItems: "center", gap: "8px",
                 backgroundColor: "#ffba08", color: "#0b0c0f",
                 fontWeight: 600, fontSize: "0.9375rem", padding: "14px 32px",
@@ -185,7 +187,7 @@ export default function HomePage() {
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                Start building <ArrowRight size={16} />
+                {user ? "Go to dashboard" : "Start building"} <ArrowRight size={16} />
               </Link>
               <Link href="/hackathons" style={{
                 display: "inline-flex", alignItems: "center", gap: "8px",
@@ -548,7 +550,7 @@ export default function HomePage() {
             }}>
               Create an account and join the next cohort at your university.
             </p>
-            <Link href="/auth" style={{
+            <Link href={user ? "/dashboard" : "/auth"} style={{
               display: "inline-flex", alignItems: "center", gap: "8px",
               backgroundColor: "#ffba08", color: "#0b0c0f",
               fontWeight: 600, fontSize: "1rem", padding: "15px 36px",
@@ -559,7 +561,7 @@ export default function HomePage() {
               onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-2px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              Get started <ArrowRight size={18} />
+              {user ? "Go to dashboard" : "Get started"} <ArrowRight size={18} />
             </Link>
             <p style={{ margin: 0 }}>
               <span style={{ fontSize: "0.8125rem", color: "#888888", fontFamily: "var(--font-dm-sans), sans-serif" }}>

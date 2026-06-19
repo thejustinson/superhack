@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { matchUniversityByDomain } from "@/lib/universities";
 
 export async function POST(req: Request) {
   try {
@@ -79,18 +80,11 @@ export async function POST(req: Request) {
     const submittedDomain = profile.pending_university_email.split("@")[1];
 
     // Fetch all universities and check if the submitted domain matches
-    // either exactly, or as a subdomain of a university's base email_domain
     const { data: universities } = await supabase
       .from("universities")
       .select("id, email_domain");
 
-    const matchedUniversity = universities?.find((uni) => {
-      if (!uni.email_domain) return false;
-      return (
-        submittedDomain === uni.email_domain ||
-        submittedDomain.endsWith(`.${uni.email_domain}`)
-      );
-    });
+    const matchedUniversity = matchUniversityByDomain(submittedDomain, universities || []);
 
     if (!matchedUniversity) {
       return NextResponse.json(

@@ -8,6 +8,7 @@ import { ShieldCheck, AlertTriangle, Loader2, Calendar, ArrowRight } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { matchUniversityByDomain } from "@/lib/universities";
 
 interface University {
   id: string;
@@ -257,12 +258,11 @@ function VerificationFlow() {
     if (email.includes("@")) {
       const domain = email.split("@")[1]?.toLowerCase();
       if (domain) {
-        const { data } = await supabase
+        const { data: universities } = await supabase
           .from("universities")
-          .select("id, name")
-          .eq("email_domain", domain)
-          .maybeSingle();
-        setDetectedUni(data ?? null);
+          .select("id, name, email_domain");
+        const matched = matchUniversityByDomain(domain, universities || []);
+        setDetectedUni(matched ?? null);
       }
     } else {
       setDetectedUni(null);
@@ -282,11 +282,11 @@ function VerificationFlow() {
       return;
     }
 
-    const { data: uni } = await supabase
+    const { data: universities } = await supabase
       .from("universities")
-      .select("id, name")
-      .eq("email_domain", domain)
-      .maybeSingle();
+      .select("id, name, email_domain");
+
+    const uni = matchUniversityByDomain(domain, universities || []);
 
     if (!uni) {
       setVerificationError(`We couldn't find a registered university with the domain "${domain}". Contact support to add yours!`);

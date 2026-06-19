@@ -10,8 +10,9 @@ export const contentType = "image/png";
 export default async function Image({
   params,
 }: {
-  params: { username: string; "project-slug": string };
+  params: Promise<{ username: string; "project-slug": string }>;
 }) {
+  const { username, "project-slug": projectSlug } = await params;
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,8 +30,8 @@ export default async function Image({
   const { data: project } = await supabase
     .from("projects")
     .select("name, tagline, logo_url, profiles!inner(full_name), cohorts(universities(name))")
-    .eq("profiles.username", params.username)
-    .eq("project_slug", params["project-slug"])
+    .eq("profiles.username", username)
+    .eq("project_slug", projectSlug)
     .single();
 
   return new ImageResponse(

@@ -6,7 +6,8 @@ export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +25,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const { data: university } = await supabase
     .from("universities")
     .select("name, city, state")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   return new ImageResponse(

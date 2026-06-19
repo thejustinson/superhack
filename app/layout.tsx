@@ -10,9 +10,25 @@ export const metadata: Metadata = {
   description: "A Superteam Nigeria hackathon initiative. Learn Solana, ship a real project, and compete for prizes.",
   keywords: ["Solana", "hackathon", "Superteam Nigeria", "blockchain", "web3", "Nigeria"],
   openGraph: {
-    title: "Superhack — Build on Solana. Get paid.",
-    description: "A Superteam Nigeria hackathon initiative. Build on Solana in two weeks.",
+    title: "Superhack",
+    description: "The campus hackathon for Solana builders.",
+    url: "https://superhack.fun",
+    siteName: "Superhack",
+    images: [
+      {
+        url: "https://superhack.fun/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Superhack",
+    description: "The campus hackathon for Solana builders.",
+    images: ["https://superhack.fun/og-image.png"],
   },
   icons: {
     icon: "/logo.svg",

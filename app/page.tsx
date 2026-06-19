@@ -54,10 +54,10 @@ const prizes = [
 ];
 
 const steps = [
-  { n: "01", title: "Learn about Solana", week: "Week 1", desc: "Dive into Solana fundamentals - accounts, programs, transactions. Full resource list provided, no prior blockchain experience needed." },
-  { n: "02", title: "Build your project", week: "Week 2", desc: "Pick an idea from our curated list or bring your own. Build a working Solana dApp or on-chain program on devnet." },
-  { n: "03", title: "Submit & list it", week: "Submission", desc: "Fill in the submission form with project details, GitHub link, and your Solana program address to go live on the board." },
-  { n: "04", title: "Demo day & prizes", week: "Demo Day", desc: "Present to judges and community. Winners get paid in USDC directly to their Solana wallet." },
+  { n: "01", title: "Learn & Build", week: "Week 1", desc: "Learn Solana fundamentals and build your project. Pick an idea from our curated list or bring your own." },
+  { n: "02", title: "Submit your work", week: "Deadline", desc: "Fill in the submission form with project details, GitHub link, and your Solana program address before the end of Week 1." },
+  { n: "03", title: "Judging week", week: "Week 2", desc: "Judges review submissions, query program addresses, and vote on the best projects over a full week." },
+  { n: "04", title: "Prizes & payout", week: "Winners", desc: "The top 2 builders in each cohort receive up to $100 each toward their school fees, paid in USDC." },
 ];
 
 function difficultyColor(d?: string | null) {
@@ -170,7 +170,7 @@ export default function HomePage() {
                 textAlign: "center",
                 margin: 0,
               }}>
-                Superhack is a campus hackathon platform for Nigerian university students. One week to learn Solana. One week to build. Real prizes.
+                Superhack is a campus hackathon platform for Nigerian university students. One week to build. One week to judge. Real prizes.
               </p>
             </motion.div>
 
@@ -226,7 +226,7 @@ export default function HomePage() {
             display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center",
             gap: "12px 32px",
           }}>
-            {["$100 school fees contribution · 2 winners per cohort", "2-week format", "Solana-powered"].map((stat, i, arr) => (
+            {["$100 school fees contribution · 2 winners per cohort", "1 week to build · 1 week to judge", "Solana-powered"].map((stat, i, arr) => (
               <span key={stat} style={{ display: "flex", alignItems: "center", gap: "32px" }}>
                 <span style={{ fontSize: "0.875rem", color: "#666666", fontFamily: "var(--font-dm-sans), sans-serif" }}>
                   {stat}
@@ -307,7 +307,7 @@ export default function HomePage() {
                 How it works
               </h2>
               <p style={{ color: "#888888", margin: 0, fontSize: "1rem", maxWidth: "380px" }}>
-                Four steps from zero to Solana builder in two weeks.
+                Four steps to go from idea to judged project in two weeks.
               </p>
             </motion.div>
 
@@ -520,7 +520,7 @@ export default function HomePage() {
             </div>
             <div style={{ marginTop: "32px", textAlign: "center" }}>
               <p style={{ fontSize: "0.75rem", color: "#666666", margin: 0, fontFamily: "var(--font-dm-sans), sans-serif", lineHeight: 1.5 }}>
-                Prizes are capped at $100 per winner and paid in USDC on Solana after the Superhack demo day. Winners are selected by the Superteam Nigeria team.
+                Prizes are capped at $100 per winner and paid in USDC on Solana after the judging week. Winners are selected by the Superteam Nigeria team.
               </p>
             </div>
           </div>

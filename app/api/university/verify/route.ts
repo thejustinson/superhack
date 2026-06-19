@@ -76,15 +76,23 @@ export async function POST(req: Request) {
     }
 
     // Match the email domain against the universities table
-    const domain = profile.pending_university_email.split("@")[1];
+    const submittedDomain = profile.pending_university_email.split("@")[1];
 
-    const { data: university } = await supabase
+    // Fetch all universities and check if the submitted domain matches
+    // either exactly, or as a subdomain of a university's base email_domain
+    const { data: universities } = await supabase
       .from("universities")
-      .select("id")
-      .eq("email_domain", domain)
-      .single();
+      .select("id, email_domain");
 
-    if (!university) {
+    const matchedUniversity = universities?.find((uni) => {
+      if (!uni.email_domain) return false;
+      return (
+        submittedDomain === uni.email_domain ||
+        submittedDomain.endsWith(`.${uni.email_domain}`)
+      );
+    });
+
+    if (!matchedUniversity) {
       return NextResponse.json(
         { error: "This email domain is not recognised as a partner university" },
         { status: 400 }
@@ -95,7 +103,7 @@ export async function POST(req: Request) {
       .from("profiles")
       .update({
         university_email: profile.pending_university_email,
-        university_id: university.id,
+        university_id: matchedUniversity.id,
         university_verified: true,
         university_verification_code: null,
         university_verification_expires_at: null,

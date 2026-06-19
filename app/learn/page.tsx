@@ -1,14 +1,63 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Info, BookOpen, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Info, BookOpen, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TopicCard } from "@/components/learn/TopicCard";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+
+interface ExternalResource {
+  title: string;
+  url: string;
+  description: string;
+}
+
+interface ExternalResourceGroup {
+  groupName: string;
+  links: ExternalResource[];
+}
+
+const externalResources: ExternalResourceGroup[] = [
+  {
+    groupName: "Official Solana docs",
+    links: [
+      { title: "Solana Docs", url: "https://solana.com/docs", description: "The official technical reference for Solana's architecture, RPC methods, and core concepts." },
+      { title: "Solana Cookbook", url: "https://solanacookbook.com", description: "Practical code snippets and recipes for common Solana development tasks." },
+      { title: "Solana Stack Exchange", url: "https://solana.stackexchange.com", description: "Community Q&A for technical Solana questions." },
+    ]
+  },
+  {
+    groupName: "Writing programs in Rust",
+    links: [
+      { title: "The Rust Book", url: "https://doc.rust-lang.org/book", description: "The definitive, free introduction to Rust as a language." },
+      { title: "Anchor Documentation", url: "https://anchor-lang.com", description: "The framework most Solana programs are built with." },
+      { title: "Solana Program Examples", url: "https://github.com/solana-developers/program-examples", description: "Official example programs covering common patterns." },
+    ]
+  },
+  {
+    groupName: "SDKs and tools used in this course",
+    links: [
+      { title: "Solana Web3.js Docs", url: "https://solana-labs.github.io/solana-web3.js", description: "Reference documentation for the core client library." },
+      { title: "SPL Token Docs", url: "https://spl.solana.com/token", description: "Official documentation for creating and managing tokens." },
+      { title: "Metaplex Developer Hub", url: "https://developers.metaplex.com", description: "NFT and digital asset tooling documentation." },
+      { title: "Solana Pay Docs", url: "https://docs.solanapay.com", description: "Official documentation for building payment flows." },
+      { title: "Privy Docs", url: "https://docs.privy.io", description: "Wallet abstraction and embedded wallet implementation." },
+      { title: "Dynamic Docs", url: "https://docs.dynamic.xyz", description: "An alternative to Privy for wallet abstraction." },
+    ]
+  },
+  {
+    groupName: "Staying current",
+    links: [
+      { title: "Solana Foundation Blog", url: "https://solana.com/news", description: "Official announcements and ecosystem updates." },
+      { title: "Superteam", url: "https://superteam.fun", description: "The broader Superteam ecosystem and community." },
+      { title: "Helius Blog", url: "https://helius.dev/blog", description: "In-depth technical writing on Solana infrastructure and development." },
+    ]
+  }
+];
 
 interface Topic {
   id: string;
@@ -34,6 +83,7 @@ export default function LearnPage() {
   // Overall stats
   const [totalLessons, setTotalLessons] = useState(0);
   const [totalCompleted, setTotalCompleted] = useState(0);
+  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -158,6 +208,138 @@ export default function LearnPage() {
                 Start from zero. Build on Solana. Everything you need, in order.
               </p>
             </motion.div>
+
+            {/* In-progress notice */}
+            <motion.div
+              variants={fadeUp}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "16px",
+                backgroundColor: "#111318",
+                border: "1px solid rgba(255, 255, 255, 0.07)",
+                borderRadius: "12px",
+                padding: "16px 20px",
+              }}
+            >
+              <Info size={20} style={{ color: "#888888", flexShrink: 0, marginTop: "2px" }} />
+              <p style={{
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontSize: "0.875rem",
+                color: "#888888",
+                lineHeight: 1.6,
+                margin: 0,
+              }}>
+                We&apos;re actively building out this curriculum — adding new lessons, refining existing ones, and expanding into more advanced topics. What&apos;s here right now covers the fundamentals you need to start building on Solana for Superhack. For deeper or more specialised learning, see the resources below.
+              </p>
+            </motion.div>
+
+            {/* Resources toggle row */}
+            <motion.button
+              variants={fadeUp}
+              onClick={() => setIsResourcesOpen(!isResourcesOpen)}
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#111318",
+                border: "1px solid rgba(255, 255, 255, 0.07)",
+                borderRadius: "12px",
+                padding: "14px 20px",
+                cursor: "pointer",
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontSize: "0.875rem",
+                color: "#888888",
+                transition: "color 0.2s, border-color 0.2s",
+                outline: "none",
+              }}
+              whileHover={{ color: "#f0f0f0", borderColor: "rgba(255,186,8,0.3)" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <BookOpen size={16} style={{ flexShrink: 0 }} />
+                <span>Want to go deeper? See external resources</span>
+              </div>
+              <motion.div
+                animate={{ rotate: isResourcesOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <ChevronDown size={16} />
+              </motion.div>
+            </motion.button>
+
+            <AnimatePresence>
+              {isResourcesOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "32px", paddingTop: "8px", paddingBottom: "16px" }}>
+                    {externalResources.map((group) => (
+                      <div key={group.groupName} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <h3 style={{
+                          fontFamily: "var(--font-dm-sans), sans-serif",
+                          fontSize: "0.75rem",
+                          fontWeight: 500,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          color: "#888888",
+                          margin: 0,
+                        }}>
+                          {group.groupName}
+                        </h3>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {group.links.map((link) => (
+                            <motion.a
+                              key={link.url}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              whileHover={{ y: -2, borderColor: "rgba(255,186,8,0.3)" }}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                backgroundColor: "#111318",
+                                border: "1px solid rgba(255,255,255,0.07)",
+                                borderRadius: "12px",
+                                padding: "14px 16px",
+                                textDecoration: "none",
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", marginBottom: "4px" }}>
+                                <span style={{
+                                  fontFamily: "var(--font-dm-sans), sans-serif",
+                                  fontSize: "0.9rem",
+                                  fontWeight: 600,
+                                  color: "#f0f0f0",
+                                }}>
+                                  {link.title}
+                                </span>
+                                <ExternalLink size={14} style={{ color: "#888888", flexShrink: 0, marginTop: "2px" }} />
+                              </div>
+                              <span style={{
+                                fontSize: "0.75rem",
+                                color: "#888888",
+                                lineHeight: 1.4,
+                              }}>
+                                {link.description}
+                              </span>
+                            </motion.a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Progress / Auth Banner */}
             {!loading && (

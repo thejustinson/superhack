@@ -30,8 +30,38 @@ export function OTPInput({
     setDigits(newDigits);
   }, [value, length]);
 
+  const distributeOtp = (pasted: string) => {
+    if (!pasted) return;
+
+    const newDigits = Array(length).fill("");
+    pasted.split("").forEach((char, i) => {
+      if (i < length) {
+        newDigits[i] = char;
+      }
+    });
+
+    setDigits(newDigits);
+    const fullValue = newDigits.join("");
+    onChange(fullValue);
+
+    if (fullValue.length === length && onComplete) {
+      onComplete(fullValue);
+    }
+
+    // Focus the box after the last pasted digit, or the last box if all length filled
+    const nextIndex = Math.min(pasted.length, length - 1);
+    inputRefs.current[nextIndex]?.focus();
+  };
+
   const handleChange = (index: number, val: string) => {
     const cleanVal = val.replace(/\D/g, "");
+
+    // Check if multiple characters arrived at once (mobile paste fallback)
+    if (cleanVal.length > 1) {
+      distributeOtp(cleanVal.slice(0, length));
+      return;
+    }
+
     if (!cleanVal) {
       const nextDigits = [...digits];
       nextDigits[index] = "";
@@ -41,8 +71,7 @@ export function OTPInput({
     }
 
     const nextDigits = [...digits];
-    const char = cleanVal[cleanVal.length - 1];
-    nextDigits[index] = char;
+    nextDigits[index] = cleanVal;
     setDigits(nextDigits);
 
     const updatedValue = nextDigits.join("");
@@ -78,24 +107,7 @@ export function OTPInput({
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
-    if (!pasted) return;
-
-    const newDigits = [...digits];
-    pasted.split("").forEach((char, i) => {
-      newDigits[i] = char;
-    });
-
-    setDigits(newDigits);
-    const fullValue = newDigits.join("");
-    onChange(fullValue);
-
-    if (pasted.length === length && onComplete) {
-      onComplete(pasted);
-    }
-
-    // Focus the box after the last pasted digit, or the last box if all length filled
-    const nextIndex = Math.min(pasted.length, length - 1);
-    inputRefs.current[nextIndex]?.focus();
+    distributeOtp(pasted);
   };
 
   const boxStyle: React.CSSProperties = {
@@ -125,8 +137,9 @@ export function OTPInput({
             }}
             type="text"
             inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={1}
+            pattern="\d*"
+            autoComplete={i === 0 ? "one-time-code" : "off"}
+            maxLength={length}
             value={digits[i] || ""}
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}

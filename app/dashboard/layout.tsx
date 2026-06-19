@@ -18,16 +18,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main style={{
           flex: 1,
           overflowY: "auto",
-          // Desktop: offset left for sidebar
-          paddingLeft: "220px",
-          // Mobile: offset bottom for tab bar
-          paddingBottom: "64px",
           minHeight: "100vh",
         }}>
           {/* Responsive padding override */}
           <style>{`
             @media (max-width: 1023px) {
-              main { padding-left: 0 !important; }
+              main { padding-top: 56px !important; }
             }
           `}</style>
           <div style={{ padding: "32px 28px", maxWidth: "1000px" }}>

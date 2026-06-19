@@ -1,12 +1,13 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Loader2, CheckCircle2, AtSign, User, CheckCircle } from "lucide-react";
+import { Loader2, User, AtSign } from "lucide-react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { motion, AnimatePresence } from "framer-motion";
+import { UsernameInput, UsernameStatus } from "@/components/ui/UsernameInput";
 
 function slugify(s: string): string {
   return s
@@ -72,7 +73,7 @@ function OnboardingContent() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
 
   useEffect(() => {
     if (profile?.full_name && profile?.username) {
@@ -89,27 +90,6 @@ function OnboardingContent() {
       setUsername(slugify(name));
     }
   }, [step, name]);
-
-  // Debounced username check
-  useEffect(() => {
-    if (!username || step !== 2) return;
-    const clean = slugify(username);
-    if (!clean || clean.length < 3) {
-      setUsernameStatus(clean.length > 0 ? "invalid" : "idle");
-      return;
-    }
-    setUsernameStatus("checking");
-    const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", clean)
-        .neq("id", user?.id ?? "")
-        .maybeSingle();
-      setUsernameStatus(data ? "taken" : "available");
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [username, step, user?.id]);
 
   async function handleNameSubmit() {
     if (!name.trim() || !user) return;
@@ -150,27 +130,10 @@ function OnboardingContent() {
     }
   }
 
-  function handleUsernameInput(val: string) {
-    setUsername(slugify(val) || val.toLowerCase());
-    setUsernameStatus("idle");
+  const handleUsernameChange = (val: string) => {
+    setUsername(val);
     setError("");
-  }
-
-  const usernameHelperColor = {
-    idle: "#888888",
-    checking: "#888888",
-    available: "#4ade80",
-    taken: "#f87171",
-    invalid: "#f87171",
-  }[usernameStatus];
-
-  const usernameHelperText = {
-    idle: username.length > 0 ? `superhack.fun/${slugify(username)}` : "Choose a unique @handle",
-    checking: "Checking availability...",
-    available: <span className="flex items-center gap-1"><CheckCircle size={11} /> Available - superhack.fun/{slugify(username)}</span>,
-    taken: "That username is already taken",
-    invalid: "Username must be at least 3 characters",
-  }[usernameStatus];
+  };
 
   return (
     <main style={{
@@ -254,26 +217,15 @@ function OnboardingContent() {
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#888888", fontSize: "0.9375rem", pointerEvents: "none" }}>@</span>
-                <input
-                  type="text"
-                  placeholder="yourname"
-                  value={username}
-                  onChange={e => handleUsernameInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && usernameStatus === "available" && handleUsernameSubmit()}
-                  autoFocus
-                  style={{ ...inputStyle, paddingLeft: "32px" }}
-                  onFocus={e => (e.currentTarget.style.borderColor = "#ffba08")}
-                  onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
-                />
-              </div>
-              {username.length > 0 && (
-                <p style={{ fontSize: "0.8125rem", color: usernameHelperColor, margin: 0 }}>
-                  {usernameStatus === "checking" && <Loader2 size={12} style={{ display: "inline", marginRight: "4px", animation: "spin 0.8s linear infinite" }} />}
-                  {usernameHelperText}
-                </p>
-              )}
+              <UsernameInput
+                value={username}
+                onChange={handleUsernameChange}
+                status={usernameStatus}
+                onStatusChange={setUsernameStatus}
+                userId={user?.id}
+                onKeyDown={(e) => e.key === "Enter" && usernameStatus === "available" && handleUsernameSubmit()}
+                autoFocus
+              />
               {error && <p style={{ fontSize: "0.8125rem", color: "#f87171", margin: 0 }}>{error}</p>}
               <button
                 onClick={handleUsernameSubmit}

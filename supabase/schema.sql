@@ -337,4 +337,15 @@ alter table profiles add column if not exists university_verification_code text;
 alter table profiles add column if not exists university_verification_expires_at timestamptz;
 alter table profiles add column if not exists pending_university_email text;
 
+-- Username constraints migration
+alter table profiles drop constraint if exists username_not_reserved;
+alter table profiles add constraint username_not_reserved
+  check (
+    username is null or
+    lower(username) not in (
+      'admin','dashboard','ideas','docs','hackathons','universities',
+      'apply','submit','auth','projects','api','learn'
+    )
+  );
+
 

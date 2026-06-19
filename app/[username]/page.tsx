@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, use } from "react";
 import { Navbar } from "@/components/layout/Navbar";
@@ -8,6 +8,8 @@ import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { Globe, GitFork, Share2, ShieldCheck, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { isReservedUsername } from "@/lib/reserved-usernames";
+import { notFound } from "next/navigation";
 
 const containerStyle: React.CSSProperties = {
   maxWidth: "1024px",
@@ -17,6 +19,11 @@ const containerStyle: React.CSSProperties = {
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
+
+  if (username && isReservedUsername(username)) {
+    notFound();
+  }
+
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

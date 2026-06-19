@@ -1,11 +1,12 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useUploadThing } from "@/lib/uploadthing";
-import { Loader2, CheckCircle, User, Lock, Trash2, Camera, AtSign, Globe, Check } from "lucide-react";
+import { Loader2, CheckCircle, User, Lock, Trash2, Camera, Globe, Check } from "lucide-react";
+import { UsernameInput, UsernameStatus } from "@/components/ui/UsernameInput";
 
 function slugify(s: string): string {
   return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
@@ -50,7 +51,7 @@ export default function DashboardProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,19 +79,6 @@ export default function DashboardProfilePage() {
       setAvatarUrl(profile.avatar_url ?? null);
     }
   }, [profile]);
-
-  // Debounced username check
-  useEffect(() => {
-    if (!username || username === profile?.username) { setUsernameStatus("idle"); return; }
-    const clean = slugify(username);
-    if (!clean || clean.length < 3) { setUsernameStatus(clean.length > 0 ? "invalid" : "idle"); return; }
-    setUsernameStatus("checking");
-    const t = setTimeout(async () => {
-      const { data } = await supabase.from("profiles").select("id").eq("username", clean).neq("id", user?.id ?? "").maybeSingle();
-      setUsernameStatus(data ? "taken" : "available");
-    }, 450);
-    return () => clearTimeout(t);
-  }, [username, profile?.username, user?.id]);
 
   async function handleSave() {
     if (!user || !fullName.trim()) return;
@@ -120,8 +108,6 @@ export default function DashboardProfilePage() {
   }
 
   const initials = (profile?.full_name ?? user?.email ?? "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
-
-  const usernameColor = { idle: "#888888", checking: "#888888", available: "#4ade80", taken: "#f87171", invalid: "#f87171" }[usernameStatus];
 
   return (
     <motion.div
@@ -174,25 +160,15 @@ export default function DashboardProfilePage() {
         {/* Username */}
         <div>
           <label style={labelStyle}>Username</label>
-          <div style={{ position: "relative" }}>
-            <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#888888", pointerEvents: "none" }}><AtSign size={14} /></span>
-            <input style={{ ...inputStyle, paddingLeft: "32px" }} value={username} onChange={e => { setUsername(slugify(e.target.value) || e.target.value.toLowerCase()); setUsernameStatus("idle"); }}
-              placeholder="yourname"
-              onFocus={e => (e.currentTarget.style.borderColor = "rgba(255,186,8,0.5)")}
-              onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")} />
-          </div>
-          {username.length > 0 && username !== profile?.username && (
-            <p style={{ fontSize: "0.75rem", color: usernameColor, margin: "6px 0 0" }}>
-              {usernameStatus === "checking" && <Loader2 size={11} style={{ display: "inline", marginRight: "4px", animation: "spin 0.8s linear infinite" }} />}
-              {usernameStatus === "available" && <span className="flex items-center gap-1"><CheckCircle size={11} /> Available - superhack.fun/{slugify(username)}</span>}
-              {usernameStatus === "taken" && "That username is taken"}
-              {usernameStatus === "invalid" && "Must be at least 3 characters"}
-              {usernameStatus === "checking" && "Checking..."}
-            </p>
-          )}
-          {profile?.username && username === profile.username && (
-            <p style={{ fontSize: "0.75rem", color: "#555", margin: "6px 0 0" }}>superhack.fun/{profile.username}</p>
-          )}
+          <UsernameInput
+            value={username}
+            onChange={setUsername}
+            status={usernameStatus}
+            onStatusChange={setUsernameStatus}
+            userId={user?.id}
+            currentUsername={profile?.username}
+            isDashboard
+          />
         </div>
 
         {/* About */}

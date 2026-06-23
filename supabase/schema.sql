@@ -37,6 +37,8 @@ create table if not exists cohorts (
   start_date    date,
   end_date      date,
   prize_pool    jsonb default '{"first":100,"second":70,"third":50,"community":30}',
+  results_announced boolean default false,
+  results_announcement_date date,
   created_at    timestamptz default now()
 );
 
@@ -347,5 +349,13 @@ alter table profiles add constraint username_not_reserved
       'apply','submit','auth','projects','api','learn'
     )
   );
+
+-- Cohort results announcement migrations
+alter table cohorts add column if not exists results_announced boolean default false;
+alter table cohorts add column if not exists results_announcement_date date;
+
+-- Unique constraint: one project per user per cohort
+alter table projects drop constraint if exists one_submission_per_user_per_cohort;
+alter table projects add constraint one_submission_per_user_per_cohort unique (user_id, cohort_id);
 
 

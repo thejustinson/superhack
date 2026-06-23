@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -143,7 +143,7 @@ export function Navbar() {
                     height={32}
                     className="rounded-full object-cover cursor-pointer"
                     onClick={() => router.push('/dashboard')}
-                    style={{ flexShrink: 0 }}
+                    style={{ flexShrink: 0, width: '32px', height: '32px', flexGrow: 0 }}
                   />
                 ) : (
                   // Fallback: initials circle

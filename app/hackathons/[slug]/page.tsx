@@ -9,10 +9,21 @@ import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/Badge";
 import { ProjectCard } from "@/components/ui/ProjectCard";
-import { Loader2, Calendar, Trophy, Send, Award, Bell } from "lucide-react";
+import { CohortResults } from "@/components/ui/CohortResults";
+import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock } from "lucide-react";
 import Link from "next/link";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { projectPath } from "@/lib/utils";
+
+function formatDate(dateStr?: string | null) {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
 
 export default function HackathonDetailPage() {
   const params = useParams();
@@ -54,7 +65,8 @@ export default function HackathonDetailPage() {
           *,
           profiles!user_id (
             full_name,
-            username
+            username,
+            avatar_url
           ),
           cohorts (
             title,
@@ -70,6 +82,7 @@ export default function HackathonDetailPage() {
         builder: {
           full_name: p.profiles?.full_name || "Anonymous",
           username: p.profiles?.username || "",
+          avatar_url: p.profiles?.avatar_url || null,
         },
         cohort: {
           title: data.title,
@@ -172,18 +185,37 @@ export default function HackathonDetailPage() {
           {/* Countdown Banner */}
           <div style={{ marginBottom: "48px" }}>
             {cohort.status === "past" ? (
-              <div style={{
-                backgroundColor: "#111318",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "12px",
-                padding: "24px",
-                textAlign: "center",
-                color: "#888888",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.9375rem"
-              }}>
-                This hackathon has ended on {new Date(cohort.end_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.
-              </div>
+              cohort.results_announced ? (
+                <div style={{
+                  backgroundColor: "#111318",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: "12px",
+                  padding: "24px",
+                  textAlign: "center",
+                  color: "#888888",
+                  fontFamily: "var(--font-dm-sans), sans-serif",
+                  fontSize: "0.9375rem"
+                }}>
+                  This hackathon has ended. Results have been announced!
+                </div>
+              ) : (
+                <div style={{
+                  backgroundColor: "#111318",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: "12px",
+                  padding: "32px",
+                  textAlign: "center",
+                  color: "#888888",
+                }}>
+                  <Clock style={{ margin: "0 auto 12px", color: "#888888" }} size={24} />
+                  <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 6px", fontSize: "1.125rem" }}>This hackathon has ended</p>
+                  <p style={{ fontSize: "0.875rem", color: "#888888", margin: 0 }}>
+                    {cohort.results_announcement_date
+                      ? `Results will be announced on ${formatDate(cohort.results_announcement_date)}.`
+                      : "Results will be announced soon. Check back here."}
+                  </p>
+                </div>
+              )
             ) : (
               <CountdownTimer startDate={cohort.start_date} endDate={cohort.end_date} />
             )}
@@ -303,21 +335,29 @@ export default function HackathonDetailPage() {
             ) : null}
           </div>
 
-          {/* Submissions Section */}
-          <section>
-            <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>Submitted Projects</h2>
-            {projects.length === 0 ? (
-              <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "56px 24px", textAlign: "center", color: "#888888" }}>
-                No projects submitted to this cohort yet.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </div>
-            )}
-          </section>
+          {/* Submissions or Cohort Results Section */}
+          {cohort.status === 'past' && cohort.results_announced ? (
+            <section style={{ marginTop: "16px" }}>
+              <CohortResults projects={projects} cohortTitle={cohort.title} />
+            </section>
+          ) : cohort.status !== 'past' ? (
+            <section>
+              <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "24px" }}>
+                Submitted Projects
+              </h2>
+              {projects.length === 0 ? (
+                <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "56px 24px", textAlign: "center", color: "#888888" }}>
+                  No projects submitted to this cohort yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projects.map((project) => (
+                    <ProjectCard key={project.id} project={project} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : null}
 
         </div>
       </main>

@@ -7,12 +7,23 @@ import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProjectCard } from "@/components/ui/ProjectCard";
+import { CohortResults } from "@/components/ui/CohortResults";
 import { Badge } from "@/components/ui/Badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Calendar, Trophy, Medal, ArrowRight, Layers, FileCode, Users } from "lucide-react";
 import Link from "next/link";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { projectPath } from "@/lib/utils";
+
+function formatDate(dateStr?: string | null) {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
 
 type Tab = "overview" | "projects" | "cohorts" | "winners";
 
@@ -72,7 +83,8 @@ export default function UniversityDetailPage() {
             *,
             profiles!user_id (
               full_name,
-              username
+              username,
+              avatar_url
             ),
             cohorts (
               title,
@@ -90,6 +102,7 @@ export default function UniversityDetailPage() {
             builder: {
               full_name: p.profiles?.full_name || "Anonymous",
               username: p.profiles?.username || "",
+              avatar_url: p.profiles?.avatar_url || null,
             },
             cohort: matchedCohort ? {
               title: matchedCohort.title,
@@ -129,6 +142,8 @@ export default function UniversityDetailPage() {
   // Filter cohorts
   const activeCohort = cohorts.find((c) => c.status === "active");
   const upcomingCohort = cohorts.find((c) => c.status === "upcoming");
+  const pastCohorts = cohorts.filter((c) => c.status === "past");
+  const latestPastCohort = [...pastCohorts].sort((a, b) => new Date(b.end_date).getTime() - new Date(a.end_date).getTime())[0];
 
   // Filter projects by cohort select dropdown
   const filteredProjects = selectedCohortId === "all" 
@@ -419,84 +434,80 @@ export default function UniversityDetailPage() {
                   transition={{ duration: 0.18 }}
                   style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                 >
-                  <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
-
                   {activeCohort ? (
-                    <div style={{
-                      backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
-                      borderRadius: "12px", padding: "40px", display: "flex", flexDirection: "column",
-                      alignItems: "center", justifyContent: "center", gap: "20px", textAlign: "center"
-                    }}>
-                      <Trophy size={48} style={{ color: "#888888" }} />
-                      <div>
-                        <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
-                          Winners will be announced when the hackathon ends.
-                        </p>
-                        <p style={{ color: "#888888", fontSize: "0.875rem", margin: "0 0 16px" }}>
-                          The hackathon ends in:
-                        </p>
+                    <>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
+                      <div style={{
+                        backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
+                        borderRadius: "12px", padding: "40px", display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center", gap: "20px", textAlign: "center"
+                      }}>
+                        <Trophy size={48} style={{ color: "#888888" }} />
+                        <div>
+                          <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
+                            Winners will be announced when the hackathon ends.
+                          </p>
+                          <p style={{ color: "#888888", fontSize: "0.875rem", margin: "0 0 16px" }}>
+                            The hackathon ends in:
+                          </p>
+                        </div>
+                        <div style={{ width: "100%", maxWidth: "400px" }}>
+                          <CountdownTimer startDate={activeCohort.start_date} endDate={activeCohort.end_date} />
+                        </div>
                       </div>
-                      <div style={{ width: "100%", maxWidth: "400px" }}>
-                        <CountdownTimer startDate={activeCohort.start_date} endDate={activeCohort.end_date} />
-                      </div>
-                    </div>
+                    </>
                   ) : upcomingCohort ? (
-                    <div style={{
-                      backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
-                      borderRadius: "12px", padding: "48px 24px", display: "flex", flexDirection: "column",
-                      alignItems: "center", justifyContent: "center", gap: "16px", textAlign: "center"
-                    }}>
-                      <Trophy size={48} style={{ color: "#888888" }} />
-                      <div>
-                        <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
-                          Winners will be announced when the hackathon ends.
-                        </p>
-                        <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0 }}>
-                          The hackathon hasn&apos;t started yet.
-                        </p>
+                    <>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
+                      <div style={{
+                        backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
+                        borderRadius: "12px", padding: "48px 24px", display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center", gap: "16px", textAlign: "center"
+                      }}>
+                        <Trophy size={48} style={{ color: "#888888" }} />
+                        <div>
+                          <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
+                            Winners will be announced when the hackathon ends.
+                          </p>
+                          <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0 }}>
+                            The hackathon hasn&apos;t started yet.
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ) : winners.length === 0 ? (
-                    <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "40px", textAlign: "center", color: "#888888" }}>
-                      No winners announced yet. Get voting to set the leaderboards!
-                    </div>
+                    </>
+                  ) : latestPastCohort && !latestPastCohort.results_announced ? (
+                    <>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
+                      <div style={{
+                        backgroundColor: "#111318", border: "1px dashed rgba(255,255,255,0.07)",
+                        borderRadius: "12px", padding: "40px", display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center", gap: "20px", textAlign: "center"
+                      }}>
+                        <Trophy size={48} style={{ color: "#888888" }} />
+                        <div>
+                          <p style={{ fontWeight: 600, color: "#f0f0f0", margin: "0 0 4px", fontSize: "1.1rem" }}>
+                            This hackathon has ended
+                          </p>
+                          <p style={{ color: "#888888", fontSize: "0.875rem", margin: 0 }}>
+                            {latestPastCohort.results_announcement_date
+                              ? `Results will be announced on ${formatDate(latestPastCohort.results_announcement_date)}.`
+                              : "Results will be announced soon. Check back here."}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : latestPastCohort && latestPastCohort.results_announced ? (
+                    <CohortResults 
+                      projects={projects.filter((p) => p.cohort_id === latestPastCohort.id)} 
+                      cohortTitle={latestPastCohort.title} 
+                    />
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                      {winners.map((project, index) => {
-                        const rankLabel = index === 0 ? "1st Place" : index === 1 ? "2nd Place" : "3rd Place";
-                        const prizeAmount = "$100 school fees contribution";
-                        return (
-                          <div key={project.id} style={{
-                            backgroundColor: "#111318", border: "1px solid rgba(255,255,255,0.07)",
-                            borderRadius: "10px", padding: "20px", display: "flex", flexWrap: "wrap",
-                            justifyContent: "space-between", alignItems: "center", gap: "16px"
-                          }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                              <div style={{
-                                width: "40px", height: "40px", borderRadius: "50%",
-                                backgroundColor: index <= 1 ? "rgba(255,186,8,0.15)" : "rgba(255,255,255,0.05)",
-                                display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center"
-                              }}>
-                                <Medal size={18} style={{ color: index <= 1 ? "#ffba08" : "#888888" }} />
-                              </div>
-                              <div>
-                                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "#ffba08", fontWeight: 600 }}>{rankLabel} ({prizeAmount})</span>
-                                <h4 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.15rem", margin: "4px 0 0", color: "#f0f0f0" }}>{project.name}</h4>
-                                <span style={{ fontSize: "0.8125rem", color: "#888888" }}>by {project.builder?.full_name || "Builder"}</span>
-                              </div>
-                            </div>
-
-                            <Link href={projectPath(project.builder?.username || "", project.project_slug || "")} style={{
-                              display: "inline-flex", alignItems: "center", gap: "6px",
-                              backgroundColor: "rgba(255,255,255,0.05)", color: "#f0f0f0", fontSize: "0.8125rem",
-                              padding: "8px 16px", borderRadius: "6px", textDecoration: "none", fontWeight: 500
-                            }}>
-                              View Project <ArrowRight size={13} />
-                            </Link>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <>
+                      <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.25rem", marginBottom: "8px" }}>Leaderboard Winners</h3>
+                      <div style={{ border: "1px dashed rgba(255,255,255,0.07)", borderRadius: "10px", padding: "40px", textAlign: "center", color: "#888888" }}>
+                        No winners announced yet. Get voting to set the leaderboards!
+                      </div>
+                    </>
                   )}
                 </motion.div>
               )}

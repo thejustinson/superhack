@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const { user, profile } = useAuth();
   const [stats, setStats] = useState({ projects: 0, upvotes: 0, ideasVoted: 0 });
   const [activeCohort, setActiveCohort] = useState<any>(null);
+  const [activeSubmission, setActiveSubmission] = useState<any>(null);
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,10 +51,10 @@ export default function DashboardPage() {
         supabase.from("votes").select("project_id, projects(upvote_count)").eq("user_id", user!.id),
       ]);
 
-      // Sum upvotes on user's own projects
+      // Sum upvotes on user's own projects and check active cohort submission
       const { data: ownProjects } = await supabase
         .from("projects")
-        .select("upvote_count")
+        .select("cohort_id, project_slug, upvote_count")
         .eq("user_id", user!.id);
 
       const totalUpvotes = (ownProjects ?? []).reduce((sum: number, p: any) => sum + (p.upvote_count ?? 0), 0);
@@ -66,6 +67,7 @@ export default function DashboardPage() {
       setRecentProjects(myProjects ?? []);
 
       // Active cohort at user's university
+      let active: any = null;
       if (profile?.university_id) {
         const { data: cohort } = await supabase
           .from("cohorts")
@@ -73,7 +75,15 @@ export default function DashboardPage() {
           .eq("university_id", profile.university_id)
           .eq("status", "active")
           .maybeSingle();
-        setActiveCohort(cohort ?? null);
+        active = cohort ?? null;
+        setActiveCohort(active);
+      }
+
+      if (ownProjects && active) {
+        const found = ownProjects.find((p: any) => p.cohort_id === active.id);
+        setActiveSubmission(found ?? null);
+      } else {
+        setActiveSubmission(null);
       }
 
       setLoading(false);
@@ -187,13 +197,23 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
-            <Link href="/submit" style={{
-              backgroundColor: "#ffba08", color: "#0b0c0f", fontWeight: 600,
-              fontSize: "0.8125rem", padding: "9px 18px", borderRadius: "7px",
-              textDecoration: "none",
-            }}>
-              Submit project
-            </Link>
+            {activeSubmission ? (
+              <Link href={projectPath(profile?.username || "", activeSubmission.project_slug)} style={{
+                backgroundColor: "rgba(255,255,255,0.06)", color: "#ffba08", border: "1px solid rgba(255,186,8,0.3)",
+                fontWeight: 600, fontSize: "0.8125rem", padding: "9px 18px", borderRadius: "7px",
+                textDecoration: "none", display: "flex", alignItems: "center", gap: "4px"
+              }}>
+                View your submission
+              </Link>
+            ) : (
+              <Link href="/submit" style={{
+                backgroundColor: "#ffba08", color: "#0b0c0f", fontWeight: 600,
+                fontSize: "0.8125rem", padding: "9px 18px", borderRadius: "7px",
+                textDecoration: "none",
+              }}>
+                Submit project
+              </Link>
+            )}
             <Link href={`/hackathons/${activeCohort.slug}`} style={{
               backgroundColor: "rgba(255,255,255,0.06)", color: "#f0f0f0",
               fontSize: "0.8125rem", padding: "9px 18px", borderRadius: "7px",

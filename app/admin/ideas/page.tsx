@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
 const CATEGORIES = [
-  "DeFi", "NFT", "Gaming", "Infrastructure", "DAO", "Payments", "Social", "Other",
+  "DeFi", "NFT", "Gaming", "Infrastructure", "Token", "DAO", "Payments", "Social", "Other",
 ];
 
 interface Idea {

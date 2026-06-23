@@ -17,8 +17,10 @@ import {
   Share2, 
   Send, 
   X,
-  AlertCircle
+  AlertCircle,
+  CheckCircle2
 } from "lucide-react";
+import { projectPath } from "@/lib/utils";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
@@ -128,6 +130,7 @@ export default function SubmitPage() {
   
   // UI States
   const [cohorts, setCohorts] = useState<any[]>([]);
+  const [existingSubmissions, setExistingSubmissions] = useState<Record<string, any>>({});
   const [loadingCohorts, setLoadingCohorts] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -145,14 +148,36 @@ export default function SubmitPage() {
           .eq("status", "active");
         
         setCohorts(data ?? []);
+
+        // Fetch user's existing submissions for active cohorts
+        if (user) {
+          const { data: userProjects } = await supabase
+            .from("projects")
+            .select("id, name, project_slug, cohort_id")
+            .eq("user_id", user.id);
+          
+          const projectsMap: Record<string, any> = {};
+          (userProjects || []).forEach((p: any) => {
+            projectsMap[p.cohort_id] = p;
+          });
+          setExistingSubmissions(projectsMap);
+          
+          // Clear selection if it's already submitted
+          setSelectedCohort((prev: any) => {
+            if (prev && projectsMap[prev.id]) return null;
+            return prev;
+          });
+        }
       } catch (err) {
         console.error("Failed to load active cohorts:", err);
       } finally {
         setLoadingCohorts(false);
       }
     }
-    fetchActiveCohorts();
-  }, []);
+    if (!authLoading && user) {
+      fetchActiveCohorts();
+    }
+  }, [user, authLoading]);
 
   const hasVerifiedUniversity = !!profile?.university_verified;
   const userUniversityId = profile?.university_id;
@@ -364,7 +389,46 @@ export default function SubmitPage() {
           const isSelected = selectedCohort?.id === cohort.id;
           const prizePoolTotal = getPrizeTotal(cohort.prize_pool);
           const countdown = getCountdown(cohort.start_date, cohort.end_date);
+          const existingSubmission = existingSubmissions[cohort.id];
           
+          if (existingSubmission) {
+            return (
+              <div
+                key={cohort.id}
+                style={{
+                  width: "100%",
+                  backgroundColor: "#181b22",
+                  border: "1px solid rgba(255, 255, 255, 0.07)",
+                  borderRadius: "12px",
+                  padding: "20px 24px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  boxSizing: "border-box"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0, flex: 1 }}>
+                  <CheckCircle2 size={18} style={{ color: "#14F195", flexShrink: 0 }} />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{ fontSize: "0.875rem", fontWeight: 500, color: "#f0f0f0", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      You&apos;ve already submitted to this hackathon
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#888888", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {existingSubmission.name}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={projectPath(profile?.username || "", existingSubmission.project_slug)}
+                  style={{ fontSize: "0.75rem", color: "#ffba08", fontWeight: 500, textDecoration: "none", flexShrink: 0 }}
+                >
+                  View your project →
+                </Link>
+              </div>
+            );
+          }
+
           return (
             <div
               key={cohort.id}

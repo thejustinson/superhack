@@ -68,6 +68,8 @@ export interface Database {
           scope: "university" | "faculty";
           faculty_name: string | null;
           faculty_logo_url: string | null;
+          results_announced: boolean | null;
+          results_announcement_date: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["cohorts"]["Row"], "id" | "created_at"> & { id?: string };

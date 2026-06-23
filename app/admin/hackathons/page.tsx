@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { AnnounceResultsModal } from "@/components/admin/AnnounceResultsModal";
 import { supabase } from "@/lib/supabase";
 import type { Cohort, University } from "@/lib/supabase";
 import { DataTable } from "@/components/admin/DataTable";
@@ -27,6 +28,8 @@ const EMPTY = {
   scope: "university" as "university" | "faculty",
   faculty_name: "" as string | null,
   faculty_logo_url: "" as string | null,
+  results_announced: false,
+  results_announcement_date: "" as string | null,
 };
 
 function toSlug(s: string) {
@@ -58,6 +61,11 @@ export default function AdminHackathonsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Cohort | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [announceTarget, setAnnounceTarget] = useState<Cohort | null>(null);
+
+  function openAnnounceModal(cohort: Cohort) {
+    setAnnounceTarget(cohort);
+  }
 
   async function load() {
     setLoading(true);
@@ -110,6 +118,8 @@ export default function AdminHackathonsPage() {
       scope: (row.scope as "university" | "faculty") ?? "university",
       faculty_name: row.faculty_name ?? "",
       faculty_logo_url: row.faculty_logo_url ?? "",
+      results_announced: row.results_announced ?? false,
+      results_announcement_date: row.results_announcement_date ?? "",
     });
     setError(""); setSlideOpen(true);
   }
@@ -121,6 +131,35 @@ export default function AdminHackathonsPage() {
       return next;
     });
   }
+
+  const handleResultsAnnouncedChange = async (checked: boolean) => {
+    if (checked) {
+      if (editing) {
+        try {
+          const { data } = await supabase
+            .from("projects")
+            .select("id")
+            .eq("cohort_id", editing.id)
+            .not("prize_place", "is", null);
+          
+          if (!data || data.length === 0) {
+            const confirm = window.confirm(
+              "No winners have been marked for this cohort yet. Are you sure you want to announce results?"
+            );
+            if (!confirm) return;
+          }
+        } catch (err) {
+          console.error("Failed to check cohort winners:", err);
+        }
+      } else {
+        const confirm = window.confirm(
+          "No winners have been marked for this cohort yet. Are you sure you want to announce results?"
+        );
+        if (!confirm) return;
+      }
+    }
+    setForm((f) => ({ ...f, results_announced: checked }));
+  };
 
   async function save() {
     if (!form.title.trim()) { setError("Title is required."); return; }
@@ -138,6 +177,8 @@ export default function AdminHackathonsPage() {
       scope: form.scope,
       faculty_name: form.scope === "faculty" ? (form.faculty_name || null) : null,
       faculty_logo_url: form.scope === "faculty" ? (form.faculty_logo_url || null) : null,
+      results_announced: form.results_announced,
+      results_announcement_date: form.results_announcement_date || null,
     };
     try {
       if (editing) {
@@ -195,6 +236,34 @@ export default function AdminHackathonsPage() {
           )},
           { key: "start_date", label: "Start", render: (r) => r.start_date ? new Date(r.start_date).toLocaleDateString() : "-" },
           { key: "end_date", label: "End", render: (r) => r.end_date ? new Date(r.end_date).toLocaleDateString() : "-" },
+          { key: "results", label: "Results", render: (r: any) => {
+            if (r.status !== 'past') return <span style={{ color: "#888888", fontSize: "0.8125rem" }}>-</span>;
+            if (r.results_announced) {
+              return (
+                <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#888888", fontSize: "0.75rem", fontWeight: 600 }}>
+                  <CheckCircle2 size={14} style={{ color: "#14F195" }} />
+                  Results announced
+                </span>
+              );
+            }
+            return (
+              <button
+                onClick={() => openAnnounceModal(r)}
+                style={{
+                  backgroundColor: "#ffba08",
+                  color: "#0b0c0f",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px 12px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Announce Results
+              </button>
+            );
+          }},
         ]}
         data={data}
         keyField="id"
@@ -279,6 +348,29 @@ export default function AdminHackathonsPage() {
                 value={form.end_date ?? ""}
                 onChange={(e) => set("end_date", e.target.value)}
               />
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "12px", alignItems: "end" }}>
+            <div>
+              <label style={labelStyle}>Results Announcement Date</label>
+              <input
+                type="date" style={inputStyle}
+                value={form.results_announcement_date ?? ""}
+                onChange={(e) => set("results_announcement_date", e.target.value)}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", height: "42px" }}>
+              <input
+                type="checkbox"
+                id="results_announced"
+                checked={form.results_announced}
+                onChange={(e) => handleResultsAnnouncedChange(e.target.checked)}
+                style={{ width: "18px", height: "18px", cursor: "pointer" }}
+              />
+              <label htmlFor="results_announced" style={{ fontSize: "0.875rem", color: "#f0f0f0", cursor: "pointer", fontWeight: 500 }}>
+                Results Announced
+              </label>
             </div>
           </div>
 
@@ -375,6 +467,15 @@ export default function AdminHackathonsPage() {
         message={`Delete "${deleteTarget?.title}"? All associated projects will also be deleted.`}
         loading={deleting}
       />
+
+      {announceTarget && (
+        <AnnounceResultsModal
+          cohort={announceTarget}
+          open={!!announceTarget}
+          onClose={() => setAnnounceTarget(null)}
+          onAnnounced={load}
+        />
+      )}
     </div>
   );
 }

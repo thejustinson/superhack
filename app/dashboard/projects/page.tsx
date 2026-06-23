@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { projectPath } from "@/lib/utils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -17,6 +18,8 @@ export default function DashboardProjectsPage() {
   const { user, profile } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCohort, setActiveCohort] = useState<any>(null);
+  const [activeSubmission, setActiveSubmission] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
@@ -27,6 +30,20 @@ export default function DashboardProjectsPage() {
 
   async function load() {
     setLoading(true);
+
+    // Fetch active cohort for user's university
+    let active: any = null;
+    if (profile?.university_id) {
+      const { data: cohort } = await supabase
+        .from("cohorts")
+        .select("*, universities(name)")
+        .eq("university_id", profile.university_id)
+        .eq("status", "active")
+        .maybeSingle();
+      active = cohort ?? null;
+      setActiveCohort(active);
+    }
+
     const { data } = await supabase
       .from("projects")
       .select(`
@@ -36,7 +53,17 @@ export default function DashboardProjectsPage() {
       `)
       .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
-    setProjects(data ?? []);
+      
+    const projectList = data ?? [];
+    setProjects(projectList);
+
+    if (projectList.length > 0 && active) {
+      const found = projectList.find((p: any) => p.cohort_id === active.id);
+      setActiveSubmission(found ?? null);
+    } else {
+      setActiveSubmission(null);
+    }
+
     setLoading(false);
   }
 
@@ -70,14 +97,25 @@ export default function DashboardProjectsPage() {
           </p>
         </div>
         {profile?.university_verified && (
-          <Link href="/submit" style={{
-            display: "flex", alignItems: "center", gap: "7px",
-            backgroundColor: "#ffba08", color: "#0b0c0f",
-            fontWeight: 600, fontSize: "0.875rem", padding: "9px 18px",
-            borderRadius: "8px", textDecoration: "none",
-          }}>
-            <Plus size={15} /> Submit project
-          </Link>
+          activeSubmission ? (
+            <Link href={projectPath(profile?.username || "", activeSubmission.project_slug)} style={{
+              display: "flex", alignItems: "center", gap: "7px",
+              backgroundColor: "rgba(255,255,255,0.06)", color: "#ffba08", border: "1px solid rgba(255,186,8,0.3)",
+              fontWeight: 600, fontSize: "0.875rem", padding: "9px 18px",
+              borderRadius: "8px", textDecoration: "none",
+            }}>
+              View your submission
+            </Link>
+          ) : (
+            <Link href="/submit" style={{
+              display: "flex", alignItems: "center", gap: "7px",
+              backgroundColor: "#ffba08", color: "#0b0c0f",
+              fontWeight: 600, fontSize: "0.875rem", padding: "9px 18px",
+              borderRadius: "8px", textDecoration: "none",
+            }}>
+              <Plus size={15} /> Submit project
+            </Link>
+          )
         )}
       </motion.div>
 

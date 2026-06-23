@@ -69,7 +69,16 @@ export function CohortCard({ cohort }: CohortCardProps) {
             {cohort.universities?.name ?? "University"}
           </span>
         </div>
-        <Badge variant={statusVariant}>{cohort.status}</Badge>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {cohort.status === "past" && (
+            cohort.results_announced ? (
+              <span style={{ fontSize: "0.75rem", color: "#888888" }}>Results announced</span>
+            ) : (
+              <span style={{ fontSize: "0.75rem", color: "#ffba08" }}>Awaiting results</span>
+            )
+          )}
+          <Badge variant={statusVariant}>{cohort.status}</Badge>
+        </div>
       </div>
 
       {/* Title */}

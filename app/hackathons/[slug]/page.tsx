@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/Badge";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { CohortResults } from "@/components/ui/CohortResults";
-import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock } from "lucide-react";
+import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock, Video } from "lucide-react";
 import Link from "next/link";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { projectPath } from "@/lib/utils";
@@ -23,6 +23,15 @@ function formatDate(dateStr?: string | null) {
   } catch {
     return dateStr;
   }
+}
+
+function getLumaEmbedUrl(eventUrl: string, embedUrl: string | null) {
+  if (embedUrl) return embedUrl;
+  if (!eventUrl) return "";
+  if (eventUrl.includes("lu.ma/")) {
+    return eventUrl.replace("lu.ma/", "https://lu.ma/embed/event/");
+  }
+  return eventUrl;
 }
 
 export default function HackathonDetailPage() {
@@ -177,10 +186,48 @@ export default function HackathonDetailPage() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Trophy size={16} />
-                <span>$250 Prize Pool</span>
+                <span>$200 Prize Pool</span>
               </div>
             </div>
           </div>
+
+          {/* Description & Kickoff Block */}
+          {(cohort.description || (cohort.kickoff_meeting_url && cohort.status !== 'past')) && (
+            <div style={{ marginBottom: "48px", display: "flex", flexDirection: "column", gap: "20px" }}>
+              {cohort.description && (
+                <p style={{ fontSize: "0.9375rem", color: "#888888", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>
+                  {cohort.description}
+                </p>
+              )}
+              {cohort.kickoff_meeting_url && cohort.status !== 'past' && (
+                <a
+                  href={cohort.kickoff_meeting_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    backgroundColor: "#111318",
+                    border: "1px solid rgba(255, 255, 255, 0.07)",
+                    borderRadius: "8px",
+                    padding: "10px 16px",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: "#f0f0f0",
+                    width: "fit-content",
+                    textDecoration: "none",
+                    transition: "border-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255, 186, 8, 0.3)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.07)")}
+                >
+                  <Video size={16} style={{ color: "#ffba08" }} />
+                  Join kickoff meeting
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Countdown Banner */}
           <div style={{ marginBottom: "48px" }}>
@@ -247,6 +294,33 @@ export default function HackathonDetailPage() {
               </p>
             </div>
           </section>
+
+          {/* Luma Demo Day Embed */}
+          {cohort.luma_event_url && (
+            <section style={{ marginBottom: "56px" }}>
+              <h2 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.5rem", fontWeight: 900, marginBottom: "16px" }}>Demo Day</h2>
+              <p style={{ fontSize: "0.875rem", color: "#888888", marginBottom: "20px", margin: "0 0 16px 0" }}>
+                Register to attend the live Demo Day where participants present their projects.
+              </p>
+              <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <iframe
+                  src={getLumaEmbedUrl(cohort.luma_event_url, cohort.luma_embed_url)}
+                  width="100%"
+                  height="450"
+                  style={{ border: "none" }}
+                  allow="fullscreen; payment"
+                />
+              </div>
+              <a
+                href={cohort.luma_event_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: "0.75rem", color: "#ffba08", marginTop: "12px", display: "inline-block", textDecoration: "underline" }}
+              >
+                Or open the registration page directly →
+              </a>
+            </section>
+          )}
 
           {/* Dynamic Banner CTA based on Eligibility */}
           <div style={{ marginBottom: "56px" }}>

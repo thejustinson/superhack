@@ -358,4 +358,10 @@ alter table cohorts add column if not exists results_announcement_date date;
 alter table projects drop constraint if exists one_submission_per_user_per_cohort;
 alter table projects add constraint one_submission_per_user_per_cohort unique (user_id, cohort_id);
 
+-- Cohort metadata migrations: description, kickoff meeting url, luma event & embed urls
+alter table cohorts add column if not exists description text;
+alter table cohorts add column if not exists kickoff_meeting_url text;
+alter table cohorts add column if not exists luma_event_url text;
+alter table cohorts add column if not exists luma_embed_url text;
+
 

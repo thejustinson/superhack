@@ -30,6 +30,10 @@ const EMPTY = {
   faculty_logo_url: "" as string | null,
   results_announced: false,
   results_announcement_date: "" as string | null,
+  description: "" as string | null,
+  kickoff_meeting_url: "" as string | null,
+  luma_event_url: "" as string | null,
+  luma_embed_url: "" as string | null,
 };
 
 function toSlug(s: string) {
@@ -120,6 +124,10 @@ export default function AdminHackathonsPage() {
       faculty_logo_url: row.faculty_logo_url ?? "",
       results_announced: row.results_announced ?? false,
       results_announcement_date: row.results_announcement_date ?? "",
+      description: row.description ?? "",
+      kickoff_meeting_url: row.kickoff_meeting_url ?? "",
+      luma_event_url: row.luma_event_url ?? "",
+      luma_embed_url: row.luma_embed_url ?? "",
     });
     setError(""); setSlideOpen(true);
   }
@@ -179,6 +187,10 @@ export default function AdminHackathonsPage() {
       faculty_logo_url: form.scope === "faculty" ? (form.faculty_logo_url || null) : null,
       results_announced: form.results_announced,
       results_announcement_date: form.results_announcement_date || null,
+      description: form.description || null,
+      kickoff_meeting_url: form.kickoff_meeting_url || null,
+      luma_event_url: form.luma_event_url || null,
+      luma_embed_url: form.luma_embed_url || null,
     };
     try {
       if (editing) {
@@ -415,6 +427,47 @@ export default function AdminHackathonsPage() {
               value={form.scope}
               onChange={(val) => setForm((f: any) => ({ ...f, scope: val }))}
             />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Description (optional)</label>
+            <textarea
+              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              value={form.description ?? ""}
+              onChange={(e) => set("description", e.target.value)}
+              placeholder="What is this cohort about? Shown on the public hackathon page."
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Kickoff Meeting Link (optional)</label>
+            <input
+              style={inputStyle}
+              value={form.kickoff_meeting_url ?? ""}
+              onChange={(e) => set("kickoff_meeting_url", e.target.value)}
+              placeholder="Link to the kickoff call (Google Meet, Zoom, etc.)"
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={labelStyle}>Luma Event Link (optional)</label>
+              <input
+                style={inputStyle}
+                value={form.luma_event_url ?? ""}
+                onChange={(e) => set("luma_event_url", e.target.value)}
+                placeholder="https://lu.ma/event-slug"
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Luma Embed Link (optional)</label>
+              <input
+                style={inputStyle}
+                value={form.luma_embed_url ?? ""}
+                onChange={(e) => set("luma_embed_url", e.target.value)}
+                placeholder="https://lu.ma/embed/event/..."
+              />
+            </div>
           </div>
 
           {/* Faculty fields */}

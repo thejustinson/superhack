@@ -70,6 +70,10 @@ export interface Database {
           faculty_logo_url: string | null;
           results_announced: boolean | null;
           results_announcement_date: string | null;
+          description: string | null;
+          kickoff_meeting_url: string | null;
+          luma_event_url: string | null;
+          luma_embed_url: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["cohorts"]["Row"], "id" | "created_at"> & { id?: string };

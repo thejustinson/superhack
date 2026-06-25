@@ -364,4 +364,37 @@ alter table cohorts add column if not exists kickoff_meeting_url text;
 alter table cohorts add column if not exists luma_event_url text;
 alter table cohorts add column if not exists luma_embed_url text;
 
+-- Cohort participants redesign migrations
+create table if not exists cohort_participants (
+  id uuid primary key default gen_random_uuid(),
+  cohort_id uuid references cohorts(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  unique(cohort_id, user_id)
+);
 
+alter table cohort_participants enable row level security;
+
+drop policy if exists "cohort_participants_read_all" on cohort_participants;
+create policy "cohort_participants_read_all" on cohort_participants for select using (true);
+
+drop policy if exists "cohort_participants_insert_verified" on cohort_participants;
+create policy "cohort_participants_insert_verified" on cohort_participants for insert
+  with check (
+    auth.uid() = user_id
+    and exists (
+      select 1 from profiles p
+      join cohorts c on c.id = cohort_id
+      where p.id = auth.uid()
+      and p.university_verified = true
+      and p.university_id = c.university_id
+    )
+  );
+
+alter table cohorts drop column if exists luma_embed_url;
+alter table cohorts add column if not exists show_participant_count boolean default true;
+
+-- Migration: Remove cohort description, alter start_date & end_date to timestamptz
+alter table cohorts drop column if exists description;
+alter table cohorts alter column start_date type timestamptz using start_date::timestamptz;
+alter table cohorts alter column end_date type timestamptz using end_date::timestamptz;

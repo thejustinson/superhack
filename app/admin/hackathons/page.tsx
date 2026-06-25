@@ -17,6 +17,30 @@ const DEFAULT_PRIZE_POOL = [
   { place: "2nd", amount: 100, description: "School fees contribution" }
 ];
 
+function toDateTimeLocalString(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "";
+    const offset = d.getTimezoneOffset();
+    const localTime = new Date(d.getTime() - offset * 60 * 1000);
+    return localTime.toISOString().slice(0, 16);
+  } catch {
+    return "";
+  }
+}
+
+function toUTCISOString(localDateTimeStr?: string | null): string | null {
+  if (!localDateTimeStr) return null;
+  try {
+    const d = new Date(localDateTimeStr);
+    if (isNaN(d.getTime())) return null;
+    return d.toISOString();
+  } catch {
+    return null;
+  }
+}
+
 const EMPTY = {
   university_id: "",
   title: "",
@@ -30,10 +54,9 @@ const EMPTY = {
   faculty_logo_url: "" as string | null,
   results_announced: false,
   results_announcement_date: "" as string | null,
-  description: "" as string | null,
   kickoff_meeting_url: "" as string | null,
   luma_event_url: "" as string | null,
-  luma_embed_url: "" as string | null,
+  show_participant_count: true,
 };
 
 function toSlug(s: string) {
@@ -116,18 +139,17 @@ export default function AdminHackathonsPage() {
       title: row.title,
       slug: row.slug,
       status: row.status,
-      start_date: row.start_date ?? "",
-      end_date: row.end_date ?? "",
+      start_date: toDateTimeLocalString(row.start_date),
+      end_date: toDateTimeLocalString(row.end_date),
       prize_pool: pool,
       scope: (row.scope as "university" | "faculty") ?? "university",
       faculty_name: row.faculty_name ?? "",
       faculty_logo_url: row.faculty_logo_url ?? "",
       results_announced: row.results_announced ?? false,
       results_announcement_date: row.results_announcement_date ?? "",
-      description: row.description ?? "",
       kickoff_meeting_url: row.kickoff_meeting_url ?? "",
       luma_event_url: row.luma_event_url ?? "",
-      luma_embed_url: row.luma_embed_url ?? "",
+      show_participant_count: row.show_participant_count ?? true,
     });
     setError(""); setSlideOpen(true);
   }
@@ -179,18 +201,17 @@ export default function AdminHackathonsPage() {
       title: form.title,
       slug: form.slug,
       status: form.status,
-      start_date: form.start_date || null,
-      end_date: form.end_date || null,
+      start_date: toUTCISOString(form.start_date),
+      end_date: toUTCISOString(form.end_date),
       prize_pool: form.prize_pool,
       scope: form.scope,
       faculty_name: form.scope === "faculty" ? (form.faculty_name || null) : null,
       faculty_logo_url: form.scope === "faculty" ? (form.faculty_logo_url || null) : null,
       results_announced: form.results_announced,
       results_announcement_date: form.results_announcement_date || null,
-      description: form.description || null,
       kickoff_meeting_url: form.kickoff_meeting_url || null,
       luma_event_url: form.luma_event_url || null,
-      luma_embed_url: form.luma_embed_url || null,
+      show_participant_count: form.show_participant_count,
     };
     try {
       if (editing) {
@@ -346,17 +367,17 @@ export default function AdminHackathonsPage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div>
-              <label style={labelStyle}>Start Date</label>
+              <label style={labelStyle}>Start date & time (this is also the kickoff time)</label>
               <input
-                type="date" style={inputStyle}
+                type="datetime-local" style={inputStyle}
                 value={form.start_date ?? ""}
                 onChange={(e) => set("start_date", e.target.value)}
               />
             </div>
             <div>
-              <label style={labelStyle}>End Date</label>
+              <label style={labelStyle}>End date & time</label>
               <input
-                type="date" style={inputStyle}
+                type="datetime-local" style={inputStyle}
                 value={form.end_date ?? ""}
                 onChange={(e) => set("end_date", e.target.value)}
               />
@@ -430,23 +451,16 @@ export default function AdminHackathonsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Description (optional)</label>
-            <textarea
-              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
-              value={form.description ?? ""}
-              onChange={(e) => set("description", e.target.value)}
-              placeholder="What is this cohort about? Shown on the public hackathon page."
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Kickoff Meeting Link (optional)</label>
+            <label style={labelStyle}>Kickoff meeting link</label>
             <input
               style={inputStyle}
               value={form.kickoff_meeting_url ?? ""}
               onChange={(e) => set("kickoff_meeting_url", e.target.value)}
-              placeholder="Link to the kickoff call (Google Meet, Zoom, etc.)"
+              placeholder="https://meet.google.com/..."
             />
+            <p style={{ fontSize: "11px", color: "#888888", marginTop: "4px" }}>
+              Link to the meeting at the cohort's start time, shown on the public page once the cohort is active.
+            </p>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -459,15 +473,24 @@ export default function AdminHackathonsPage() {
                 placeholder="https://lu.ma/event-slug"
               />
             </div>
-            <div>
-              <label style={labelStyle}>Luma Embed Link (optional)</label>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <input
-                style={inputStyle}
-                value={form.luma_embed_url ?? ""}
-                onChange={(e) => set("luma_embed_url", e.target.value)}
-                placeholder="https://lu.ma/embed/event/..."
+                type="checkbox"
+                id="show_participant_count"
+                checked={form.show_participant_count}
+                onChange={(e) => setForm((f: any) => ({ ...f, show_participant_count: e.target.checked }))}
+                style={{ width: "18px", height: "18px", cursor: "pointer" }}
               />
+              <label htmlFor="show_participant_count" style={{ fontSize: "0.875rem", color: "#f0f0f0", cursor: "pointer", fontWeight: 500 }}>
+                Show builder count publicly
+              </label>
             </div>
+            <p style={{ fontSize: "0.75rem", color: "#888888", margin: "0 0 0 26px", lineHeight: 1.4 }}>
+              When off, the join button still works but the count is hidden from the public page.
+            </p>
           </div>
 
           {/* Faculty fields */}

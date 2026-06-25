@@ -20,6 +20,8 @@
   --color-surface: #111318;
   --color-surface2: #181b22;
   --color-muted: #888888;
+  --color-text: var(--text);
+  --color-bg: var(--bg);
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 }
 

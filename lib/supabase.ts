@@ -70,10 +70,9 @@ export interface Database {
           faculty_logo_url: string | null;
           results_announced: boolean | null;
           results_announcement_date: string | null;
-          description: string | null;
           kickoff_meeting_url: string | null;
           luma_event_url: string | null;
-          luma_embed_url: string | null;
+          show_participant_count: boolean | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["cohorts"]["Row"], "id" | "created_at"> & { id?: string };
@@ -225,6 +224,17 @@ export interface Database {
         };
         Insert: Omit<Database["public"]["Tables"]["learn_progress"]["Row"], "id"> & { id?: string };
         Update: Partial<Database["public"]["Tables"]["learn_progress"]["Insert"]>;
+        Relationships: [];
+      };
+      cohort_participants: {
+        Row: {
+          id: string;
+          cohort_id: string;
+          user_id: string;
+          joined_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["cohort_participants"]["Row"], "id" | "joined_at"> & { id?: string; joined_at?: string };
+        Update: Partial<Database["public"]["Tables"]["cohort_participants"]["Insert"]>;
         Relationships: [];
       };
     };

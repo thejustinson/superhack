@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 
 const NAV_LINKS = [
@@ -80,7 +80,6 @@ export function Footer() {
                 className="footer-link"
                 style={{
                   fontSize: "0.875rem",
-                  color: "#666666",
                   textDecoration: "none",
                   fontFamily: "var(--font-dm-sans), sans-serif",
                   transition: "color 0.2s",
@@ -123,7 +122,6 @@ export function Footer() {
                   alignItems: "center",
                   gap: "6px",
                   fontSize: "0.8125rem",
-                  color: "#666666",
                   textDecoration: "none",
                   fontFamily: "var(--font-dm-sans), sans-serif",
                   transition: "color 0.2s",
@@ -183,7 +181,7 @@ export function Footer() {
 
       <style>{`
         .footer-link {
-          color: #666666;
+          color: #888888;
         }
 
         .footer-link:hover {
@@ -197,9 +195,15 @@ export function Footer() {
         @media (max-width: 720px) {
           .footer-grid {
             grid-template-columns: 1fr !important;
+            gap: 36px !important;
+          }
+          .footer-grid > nav {
+            align-items: flex-start !important;
+            gap: 16px !important;
           }
           .footer-grid > div:last-child {
             align-items: flex-start !important;
+            gap: 16px !important;
           }
         }
       `}</style>

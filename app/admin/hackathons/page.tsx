@@ -57,6 +57,10 @@ const EMPTY = {
   kickoff_meeting_url: "" as string | null,
   luma_event_url: "" as string | null,
   show_participant_count: true,
+  organizer_name: "Justin Nwachukwu",
+  organizer_email: "justin@superhack.fun",
+  organizer_telegram: "https://t.me/thejustinson",
+  organizer_twitter: "https://x.com/thejustinson",
 };
 
 function toSlug(s: string) {
@@ -150,6 +154,10 @@ export default function AdminHackathonsPage() {
       kickoff_meeting_url: row.kickoff_meeting_url ?? "",
       luma_event_url: row.luma_event_url ?? "",
       show_participant_count: row.show_participant_count ?? true,
+      organizer_name: row.organizer_name ?? "Justin Nwachukwu",
+      organizer_email: row.organizer_email ?? "justin@superhack.fun",
+      organizer_telegram: row.organizer_telegram ?? "https://t.me/thejustinson",
+      organizer_twitter: row.organizer_twitter ?? "https://x.com/thejustinson",
     });
     setError(""); setSlideOpen(true);
   }
@@ -212,6 +220,10 @@ export default function AdminHackathonsPage() {
       kickoff_meeting_url: form.kickoff_meeting_url || null,
       luma_event_url: form.luma_event_url || null,
       show_participant_count: form.show_participant_count,
+      organizer_name: form.organizer_name || "Justin Nwachukwu",
+      organizer_email: form.organizer_email || "justin@superhack.fun",
+      organizer_telegram: form.organizer_telegram || "https://t.me/thejustinson",
+      organizer_twitter: form.organizer_twitter || "https://x.com/thejustinson",
     };
     try {
       if (editing) {
@@ -523,6 +535,51 @@ export default function AdminHackathonsPage() {
               </div>
             </>
           )}
+          {/* Organizer Contact Details */}
+          <details className="group" style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "12px", backgroundColor: "rgba(255,255,255,0.01)" }}>
+            <summary style={{ fontSize: "0.875rem", fontWeight: 600, color: "#f0f0f0", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+              <span>Organizer contact (optional)</span>
+              <span className="text-muted transition-transform group-open:rotate-180" style={{ fontSize: "10px" }}>▼</span>
+            </summary>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+              <div>
+                <label style={labelStyle}>Organizer name</label>
+                <input
+                  style={inputStyle}
+                  value={form.organizer_name ?? ""}
+                  onChange={(e) => set("organizer_name", e.target.value)}
+                  placeholder="Justin Nwachukwu"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Organizer email</label>
+                <input
+                  style={inputStyle}
+                  value={form.organizer_email ?? ""}
+                  onChange={(e) => set("organizer_email", e.target.value)}
+                  placeholder="justin@superhack.fun"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Organizer Telegram link</label>
+                <input
+                  style={inputStyle}
+                  value={form.organizer_telegram ?? ""}
+                  onChange={(e) => set("organizer_telegram", e.target.value)}
+                  placeholder="https://t.me/thejustinson"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Organizer X/Twitter link</label>
+                <input
+                  style={inputStyle}
+                  value={form.organizer_twitter ?? ""}
+                  onChange={(e) => set("organizer_twitter", e.target.value)}
+                  placeholder="https://x.com/thejustinson"
+                />
+              </div>
+            </div>
+          </details>
 
           {error && <p style={{ color: "#f87171", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
 

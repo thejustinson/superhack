@@ -73,6 +73,10 @@ export interface Database {
           kickoff_meeting_url: string | null;
           luma_event_url: string | null;
           show_participant_count: boolean | null;
+          organizer_name: string | null;
+          organizer_email: string | null;
+          organizer_telegram: string | null;
+          organizer_twitter: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["cohorts"]["Row"], "id" | "created_at"> & { id?: string };

@@ -398,3 +398,9 @@ alter table cohorts add column if not exists show_participant_count boolean defa
 alter table cohorts drop column if exists description;
 alter table cohorts alter column start_date type timestamptz using start_date::timestamptz;
 alter table cohorts alter column end_date type timestamptz using end_date::timestamptz;
+
+-- Migration: Add organizer columns
+alter table cohorts add column if not exists organizer_name text default 'Justin Nwachukwu';
+alter table cohorts add column if not exists organizer_email text default 'justin@superhack.fun';
+alter table cohorts add column if not exists organizer_telegram text default 'https://t.me/thejustinson';
+alter table cohorts add column if not exists organizer_twitter text default 'https://x.com/thejustinson';

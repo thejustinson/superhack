@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 
 const NAV_LINKS = [
@@ -31,11 +31,11 @@ export function Footer() {
           padding: "64px 32px 40px",
         }}
       >
-        {/* Three-column layout */}
+        {/* Four-column layout */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr auto 1fr",
+            gridTemplateColumns: "1.2fr auto auto 1.2fr",
             gap: "48px",
             alignItems: "flex-start",
           }}
@@ -90,7 +90,72 @@ export function Footer() {
             ))}
           </nav>
 
-          {/* Column 3 — Powered by (right-aligned) */}
+          {/* Column 3 — Contact links */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              alignItems: "flex-start",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.6875rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#444444",
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontWeight: 600,
+              }}
+            >
+              Contact
+            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <a
+                href="mailto:justin@superhack.fun"
+                className="footer-link"
+                style={{
+                  fontSize: "0.8125rem",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-dm-sans), sans-serif",
+                  transition: "color 0.2s",
+                }}
+              >
+                justin@superhack.fun
+              </a>
+              <a
+                href="https://t.me/thejustinson"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-link"
+                style={{
+                  fontSize: "0.8125rem",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-dm-sans), sans-serif",
+                  transition: "color 0.2s",
+                }}
+              >
+                Telegram
+              </a>
+              <a
+                href="https://x.com/thejustinson"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-link"
+                style={{
+                  fontSize: "0.8125rem",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-dm-sans), sans-serif",
+                  transition: "color 0.2s",
+                }}
+              >
+                X (Twitter)
+              </a>
+            </div>
+          </div>
+
+          {/* Column 4 — Powered by (right-aligned) */}
           <div
             style={{
               display: "flex",

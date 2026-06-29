@@ -11,10 +11,12 @@ import { Badge } from "@/components/ui/Badge";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { CohortResults } from "@/components/ui/CohortResults";
 import { BUILDER_CHECKLIST } from "@/lib/builder-checklist";
-import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock, Video, BookOpen, Hammer, FolderGit2, CheckCircle2, Users, ArrowUpRight } from "lucide-react";
+import { XLogo } from "@/components/ui/XLogo";
+import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock, Video, BookOpen, Hammer, FolderGit2, CheckCircle2, Users, ArrowUpRight, Mail, ClipboardCheck, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { projectPath, formatDateTimeRange } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 function formatDate(dateStr?: string | null) {
   if (!dateStr) return "";
@@ -24,6 +26,57 @@ function formatDate(dateStr?: string | null) {
   } catch {
     return dateStr;
   }
+}
+
+function BuilderChecklistSection() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <section className="mb-12">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between bg-surface border border-white/[0.07] rounded-xl px-5 py-3.5 text-left hover:border-white/[0.12] transition-colors"
+      >
+        <span className="inline-flex items-center gap-2.5 text-sm text-muted">
+          <ClipboardCheck size={16} />
+          What we need from you — see the builder checklist
+        </span>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={16} className="text-muted" />
+        </motion.div>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="pt-6 px-1">
+              <p className="text-sm text-muted mb-6 max-w-2xl">
+                Submitting a project isn&apos;t just uploading a link — it&apos;s how judges, other builders, and the wider Superhack community actually see and trust what you built. Each requirement below exists for a real reason. Meeting all of them gives your project the best shot at being understood, used, and judged fairly.
+              </p>
+
+              <div className="space-y-5">
+                {BUILDER_CHECKLIST.map((item, i) => (
+                  <div key={i} className="flex gap-3">
+                    <CheckCircle2 size={18} className="text-accent shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-text">{item.title}</p>
+                      <p className="text-xs text-muted mt-1 leading-relaxed">{item.why}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
 }
 
 function formatDateRange(startStr?: string | null, endStr?: string | null) {
@@ -389,24 +442,7 @@ export default function HackathonDetailPage() {
           </section>
 
           {/* Builder Checklist Section */}
-          <section className="mb-12">
-            <h2 className="text-lg font-bold text-text mb-4">What we need from you</h2>
-            <p className="text-sm text-muted mb-6 max-w-2xl">
-              Submitting a project isn't just uploading a link — it's how judges, other builders, and the wider Superhack community actually see and trust what you built. Each requirement below exists for a real reason. Meeting all of them gives your project the best shot at being understood, used, and judged fairly.
-            </p>
-
-            <div className="space-y-5">
-              {BUILDER_CHECKLIST.map((item, i) => (
-                <div key={i} className="flex gap-3">
-                  <CheckCircle2 size={18} className="text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-text">{item.title}</p>
-                    <p className="text-xs text-muted mt-1 leading-relaxed">{item.why}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <BuilderChecklistSection />
 
           {/* Luma Demo Day Link */}
           {cohort.luma_event_url && (
@@ -516,6 +552,34 @@ export default function HackathonDetailPage() {
               )}
             </section>
           ) : null}
+
+          {/* Organizer Contact Card */}
+          <section className="mb-12">
+            <div className="rounded-2xl border border-white/[0.07] bg-surface p-6">
+              <h3 className="text-sm font-semibold text-text mb-4">Questions about this cohort?</h3>
+              
+              <div className="flex flex-wrap gap-3 mt-4">
+                {(cohort.organizer_email || !cohort.organizer_name) && (
+                  <a href={`mailto:${cohort.organizer_email || 'justin@superhack.fun'}`} className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-text border border-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                    <Mail size={14} />
+                    Email
+                  </a>
+                )}
+                {(cohort.organizer_telegram || !cohort.organizer_name) && (
+                  <a href={cohort.organizer_telegram || 'https://t.me/thejustinson'} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-text border border-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                    <Send size={14} />
+                    Telegram
+                  </a>
+                )}
+                {(cohort.organizer_twitter || !cohort.organizer_name) && (
+                  <a href={cohort.organizer_twitter || 'https://x.com/thejustinson'} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-text border border-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                    <XLogo size={14} />
+                    X
+                  </a>
+                )}
+              </div>
+            </div>
+          </section>
 
         </div>
       </main>

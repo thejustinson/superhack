@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/Badge";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { CohortResults } from "@/components/ui/CohortResults";
+import { BUILDER_CHECKLIST } from "@/lib/builder-checklist";
 import { Loader2, Calendar, Trophy, Send, Award, Bell, Clock, Video, BookOpen, Hammer, FolderGit2, CheckCircle2, Users, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
@@ -387,6 +388,26 @@ export default function HackathonDetailPage() {
             </div>
           </section>
 
+          {/* Builder Checklist Section */}
+          <section className="mb-12">
+            <h2 className="text-lg font-bold text-text mb-4">What we need from you</h2>
+            <p className="text-sm text-muted mb-6 max-w-2xl">
+              Submitting a project isn't just uploading a link — it's how judges, other builders, and the wider Superhack community actually see and trust what you built. Each requirement below exists for a real reason. Meeting all of them gives your project the best shot at being understood, used, and judged fairly.
+            </p>
+
+            <div className="space-y-5">
+              {BUILDER_CHECKLIST.map((item, i) => (
+                <div key={i} className="flex gap-3">
+                  <CheckCircle2 size={18} className="text-accent shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-text">{item.title}</p>
+                    <p className="text-xs text-muted mt-1 leading-relaxed">{item.why}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* Luma Demo Day Link */}
           {cohort.luma_event_url && (
             <section className="mb-12">
@@ -397,10 +418,12 @@ export default function HackathonDetailPage() {
                   href={cohort.luma_event_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-accent text-bg font-semibold px-5 py-2.5 rounded-lg text-sm shrink-0 hover:opacity-90 transition-opacity"
+                  className="inline-flex"
                 >
-                  Register for Demo Day
-                  <ArrowUpRight size={15} />
+                  <button className="inline-flex items-center gap-2 bg-accent text-bg font-semibold px-5 py-2.5 rounded-lg text-sm shrink-0 hover:opacity-90 transition-opacity cursor-pointer">
+                    Register for Demo Day
+                    <ArrowUpRight size={15} />
+                  </button>
                 </a>
               </div>
             </section>
@@ -417,8 +440,11 @@ export default function HackathonDetailPage() {
                         <h3 className="text-lg font-bold text-text mb-1">You are eligible to submit!</h3>
                         <p className="text-sm text-muted">Submissions are open for builders from {cohort.universities?.name}.</p>
                       </div>
-                      <Link href="/submit" className="flex items-center gap-2 bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        <Send size={15} /> Submit your project
+                      <Link href="/submit" className="inline-flex">
+                        <button className="inline-flex items-center justify-center gap-2 bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity shadow-sm cursor-pointer">
+                          <Send size={15} />
+                          Submit your project
+                        </button>
                       </Link>
                     </div>
                   ) : (
@@ -442,8 +468,10 @@ export default function HackathonDetailPage() {
                       <h3 className="text-lg font-bold text-text mb-1">Verify your student email</h3>
                       <p className="text-sm text-muted">You must verify your university email domain on your dashboard before submitting projects.</p>
                     </div>
-                    <Link href="/dashboard" className="bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
-                      Go to Dashboard
+                    <Link href="/dashboard" className="inline-flex">
+                      <button className="bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
+                        Go to Dashboard
+                      </button>
                     </Link>
                   </div>
                 )
@@ -453,8 +481,10 @@ export default function HackathonDetailPage() {
                     <h3 className="text-lg font-bold text-text mb-1">Join the Hackathon</h3>
                     <p className="text-sm text-muted">Log in to view submission requirements or register for this cohort.</p>
                   </div>
-                  <Link href="/auth" className="bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
-                    Log In / Sign Up
+                  <Link href="/auth" className="inline-flex">
+                    <button className="bg-accent text-bg font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
+                      Log In / Sign Up
+                    </button>
                   </Link>
                 </div>
               )}

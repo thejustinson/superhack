@@ -50,6 +50,9 @@ export interface Database {
           university_verification_code: string | null;
           university_verification_expires_at: string | null;
           pending_university_email: string | null;
+          university_verified_at: string | null;
+          is_flagged: boolean;
+          flagged_reason: string | null;
         };
         Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at"> & { id: string };
         Update: Partial<Omit<Database["public"]["Tables"]["profiles"]["Row"], "id" | "created_at">>;

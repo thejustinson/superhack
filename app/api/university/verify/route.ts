@@ -99,6 +99,7 @@ export async function POST(req: Request) {
         university_email: profile.pending_university_email,
         university_id: matchedUniversity.id,
         university_verified: true,
+        university_verified_at: new Date().toISOString(),
         university_verification_code: null,
         university_verification_expires_at: null,
         pending_university_email: null,

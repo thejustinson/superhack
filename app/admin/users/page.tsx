@@ -1,12 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Shield, ShieldOff } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { UserProfile } from "@/lib/supabase";
 import { DataTable } from "@/components/admin/DataTable";
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const [data, setData] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
@@ -78,9 +80,10 @@ export default function AdminUsersPage() {
         keyField="id"
         loading={loading}
         emptyMessage="No users yet."
+        onRowClick={(row) => router.push(`/admin/users/${row.id}`)}
         actions={(row) => (
           <button
-            onClick={() => toggleAdmin(row)}
+            onClick={(e) => { e.stopPropagation(); toggleAdmin(row); }}
             disabled={toggling === row.id}
             title={row.is_admin ? "Revoke admin" : "Grant admin"}
             style={{

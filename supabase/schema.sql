@@ -404,3 +404,10 @@ alter table cohorts add column if not exists organizer_name text default 'Justin
 alter table cohorts add column if not exists organizer_email text default 'justin@superhack.fun';
 alter table cohorts add column if not exists organizer_telegram text default 'https://t.me/thejustinson';
 alter table cohorts add column if not exists organizer_twitter text default 'https://x.com/thejustinson';
+
+-- Migration: Add university_verified_at timestamp to profiles
+alter table profiles add column if not exists university_verified_at timestamptz;
+
+-- Migration: Add flag columns to profiles
+alter table profiles add column if not exists is_flagged boolean default false;
+alter table profiles add column if not exists flagged_reason text;

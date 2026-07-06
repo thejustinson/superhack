@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
@@ -20,6 +20,7 @@ interface WinnerModalProps {
 export function WinnerModal({ open, onClose, project, onConfirm }: WinnerModalProps) {
   const [place, setPlace] = useState(project?.prize_place || "1st");
   const [isWinner, setIsWinner] = useState(project?.status === "winner");
+  const [amount, setAmount] = useState<string>(project?.prize_place ? "100" : "100");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +35,9 @@ export function WinnerModal({ open, onClose, project, onConfirm }: WinnerModalPr
         .update({
           status: isWinner ? "winner" : "submitted",
           prize_place: isWinner ? place : null,
+          payment_status: isWinner ? "pending" : null,
+          payment_amount: isWinner ? (parseFloat(amount) || null) : null,
+          payment_updated_at: new Date().toISOString(),
         })
         .eq("id", project.id);
 
@@ -138,7 +142,7 @@ export function WinnerModal({ open, onClose, project, onConfirm }: WinnerModalPr
 
             {/* Selection Dropdown */}
             {isWinner && (
-              <div style={{ marginBottom: "24px" }}>
+              <div style={{ marginBottom: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
                 <label style={labelStyle}>
                   Select Prize / Place
                   <select
@@ -152,6 +156,18 @@ export function WinnerModal({ open, onClose, project, onConfirm }: WinnerModalPr
                     <option value="Community">Community Choice</option>
                     <option value="Runner Up">Runner Up</option>
                   </select>
+                </label>
+                <label style={labelStyle}>
+                  Prize Amount (USDC)
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="e.g. 100"
+                    style={{ ...selectStyle, padding: "8px 12px" }}
+                  />
                 </label>
               </div>
             )}

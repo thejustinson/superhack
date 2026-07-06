@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { FolderGit2, ChevronUp, Lightbulb, ShieldCheck, Zap, ArrowRight } from "lucide-react";
+import { FolderGit2, ChevronUp, Lightbulb, ShieldCheck, Zap, ArrowRight, Trophy } from "lucide-react";
 import Link from "next/link";
 import { projectPath } from "@/lib/utils";
 import { InlineCountdown } from "@/components/ui/InlineCountdown";
+import { PaymentStatusBadge } from "@/components/ui/PaymentStatusBadge";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const [activeCohort, setActiveCohort] = useState<any>(null);
   const [activeSubmission, setActiveSubmission] = useState<any>(null);
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
+  const [winningProjects, setWinningProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function DashboardPage() {
         { data: myProjects },
         { count: ideasVotedCount },
         { data: votes },
+        { data: winningData },
       ] = await Promise.all([
         supabase.from("projects").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("projects").select(`
@@ -49,7 +52,13 @@ export default function DashboardPage() {
         `).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(3),
         supabase.from("idea_votes").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("votes").select("project_id, projects(upvote_count)").eq("user_id", user!.id),
+        supabase.from("projects").select(`
+          id, name, project_slug, prize_place, payment_status, payment_amount,
+          cohorts(title, universities(name))
+        `).eq("user_id", user!.id).not("prize_place", "is", null),
       ]);
+
+      setWinningProjects(winningData ?? []);
 
       // Sum upvotes on user's own projects and check active cohort submission
       const { data: ownProjects } = await supabase
@@ -101,6 +110,60 @@ export default function DashboardPage() {
     <motion.div variants={stagger} initial="hidden" animate="show"
       style={{ display: "flex", flexDirection: "column", gap: "36px" }}
     >
+      {/* Winner payment card(s) */}
+      {winningProjects.map((project: any) => (
+        <motion.div key={project.id} variants={fadeUp} style={{
+          borderRadius: "16px",
+          border: "1px solid rgba(255,186,8,0.3)",
+          backgroundColor: "rgba(255,186,8,0.05)",
+          padding: "24px",
+        }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <Trophy size={15} style={{ color: "#ffba08" }} />
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ffba08", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  {project.prize_place === "1st" ? "1st Place" : project.prize_place === "2nd" ? "2nd Place" : project.prize_place} Winner
+                </span>
+              </div>
+              <h3 style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.125rem", fontWeight: 700, color: "#f0f0f0", margin: "0 0 4px" }}>
+                {project.name}
+              </h3>
+              <p style={{ fontSize: "0.8125rem", color: "#888", margin: 0 }}>
+                {(project.cohorts as any)?.title}{(project.cohorts as any)?.universities?.name ? ` · ${(project.cohorts as any).universities.name}` : ""}
+              </p>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontFamily: "DM Sans, system-ui, sans-serif", fontSize: "1.75rem", fontWeight: 800, color: "#f0f0f0", margin: "0 0 2px" }}>
+                ${project.payment_amount ?? 100}
+              </p>
+              <p style={{ fontSize: "0.75rem", color: "#888", margin: "0 0 8px" }}>USDC on Solana</p>
+              <PaymentStatusBadge status={project.payment_status} />
+            </div>
+          </div>
+          {(!project.payment_status || project.payment_status === "pending") && (
+            <p style={{ fontSize: "0.75rem", color: "#666", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              Your prize is being prepared. We&apos;ll update this status as soon as payment is on its way. Questions? Reach us at justin@superhack.fun.
+            </p>
+          )}
+          {project.payment_status === "processing" && (
+            <p style={{ fontSize: "0.75rem", color: "#666", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              Your payment is being processed. This usually takes 1–2 business days. We&apos;ll confirm once it&apos;s sent.
+            </p>
+          )}
+          {project.payment_status === "sent" && (
+            <p style={{ fontSize: "0.75rem", color: "#666", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              Payment has been sent to your wallet. Check your wallet — it should arrive shortly.
+            </p>
+          )}
+          {project.payment_status === "confirmed" && (
+            <p style={{ fontSize: "0.75rem", color: "#14F195", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(20,241,149,0.15)" }}>
+              Payment confirmed. Congratulations — your prize is on its way to your wallet.
+            </p>
+          )}
+        </motion.div>
+      ))}
+
       {/* Welcome */}
       <motion.div variants={fadeUp}>
         <h1 style={{

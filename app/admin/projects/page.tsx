@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Trash2, ExternalLink, Award } from "lucide-react";
@@ -18,6 +18,8 @@ interface ProjectRow {
   created_at: string;
   status: string;
   prize_place: string | null;
+  payment_status: string | null;
+  payment_amount: number | null;
   profiles: { full_name: string | null; username: string | null } | null;
   cohorts: { title: string; slug: string; universities: { name: string; slug: string } | null } | null;
 }
@@ -54,6 +56,19 @@ export default function AdminProjectsPage() {
     await load();
   }
 
+  async function updatePaymentStatus(projectId: string, status: string) {
+    await supabase
+      .from("projects")
+      .update({
+        payment_status: status,
+        payment_updated_at: new Date().toISOString(),
+      })
+      .eq("id", projectId);
+    setData((prev) =>
+      prev.map((p) => p.id === projectId ? { ...p, payment_status: status } : p)
+    );
+  }
+
   return (
     <div>
       <div style={{ marginBottom: "24px" }}>
@@ -76,11 +91,36 @@ export default function AdminProjectsPage() {
             <span style={{ fontWeight: 600, color: "#ffba08" }}>{r.upvote_count}</span>
           )},
           { key: "status", label: "Status", render: (r) => (
-            r.status === "winner" ? (
-              <span style={{ color: "#ffba08", fontWeight: 600 }}>Winner ({r.prize_place})</span>
-            ) : (
-              <span style={{ color: "#888888" }}>Submitted</span>
-            )
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {r.status === "winner" ? (
+                <span style={{ color: "#ffba08", fontWeight: 600, fontSize: "0.8125rem" }}>Winner ({r.prize_place})</span>
+              ) : (
+                <span style={{ color: "#888888", fontSize: "0.8125rem" }}>Submitted</span>
+              )}
+              {r.prize_place && (
+                <select
+                  value={r.payment_status ?? "pending"}
+                  onChange={(e) => { e.stopPropagation(); updatePaymentStatus(r.id, e.target.value); }}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    fontSize: "0.75rem",
+                    backgroundColor: "#0d0f14",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "6px",
+                    padding: "3px 8px",
+                    color: "#f0f0f0",
+                    cursor: "pointer",
+                    fontFamily: "DM Sans, system-ui, sans-serif",
+                    outline: "none",
+                  }}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="sent">Sent</option>
+                  <option value="confirmed">Confirmed</option>
+                </select>
+              )}
+            </div>
           )},
           { key: "github_url", label: "Links", render: (r) => (
             <div style={{ display: "flex", gap: "6px" }}>

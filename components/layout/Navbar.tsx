@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext'
 const NAV_LINKS = [
   { href: '/#how-it-works', label: 'How it works' },
   { href: '/hackathons',    label: 'Hackathons' },
+  { href: '/winners',       label: 'Winners' },
   { href: '/universities',  label: 'Universities' },
   { href: '/ideas',         label: 'Ideas' },
   { href: '/learn',         label: 'Learn' },

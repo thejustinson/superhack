@@ -109,12 +109,18 @@ export interface Database {
           slug: string | null;
           project_slug: string | null;
           category: string | null;
+          payment_status: string | null;
+          payment_amount: number | null;
+          payment_updated_at: string | null;
         };
-        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "created_at" | "upvote_count" | "status" | "prize_place"> & { 
+        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "created_at" | "upvote_count" | "status" | "prize_place" | "payment_status" | "payment_amount" | "payment_updated_at"> & { 
           id?: string; 
           upvote_count?: number;
           status?: "draft" | "submitted" | "winner";
           prize_place?: string | null;
+          payment_status?: string | null;
+          payment_amount?: number | null;
+          payment_updated_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["projects"]["Insert"]>;
         Relationships: [];

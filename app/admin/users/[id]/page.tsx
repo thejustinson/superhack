@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { StatCard } from "@/components/admin/StatCard";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
+import { PaymentStatusBadge } from "@/components/ui/PaymentStatusBadge";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
@@ -39,6 +40,9 @@ interface Project {
   name: string;
   tagline: string | null;
   status: string;
+  prize_place: string | null;
+  payment_status: string | null;
+  payment_amount: number | null;
   upvote_count: number;
   created_at: string;
 }
@@ -163,26 +167,32 @@ function ProjectRow({ project }: { project: Project }) {
   return (
     <div
       style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
         padding: "10px 0",
         borderBottom: "1px solid rgba(255,255,255,0.05)",
-        gap: "12px",
       }}
     >
-      <div>
-        <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#f0f0f0" }}>{project.name}</p>
-        {project.tagline && <p style={{ margin: 0, fontSize: "0.75rem", color: "#666", marginTop: "2px" }}>{project.tagline}</p>}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+        <div>
+          <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#f0f0f0" }}>{project.name}</p>
+          {project.tagline && <p style={{ margin: 0, fontSize: "0.75rem", color: "#666", marginTop: "2px" }}>{project.tagline}</p>}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+          <span style={{ fontSize: "0.75rem", color: "#888", display: "flex", alignItems: "center", gap: "4px" }}>
+            <ThumbsUp size={11} /> {project.upvote_count}
+          </span>
+          <span style={{ fontSize: "0.6875rem", fontWeight: 600, padding: "2px 8px", borderRadius: "20px", backgroundColor: `${statusColor}18`, color: statusColor }}>
+            {project.status}
+          </span>
+        </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-        <span style={{ fontSize: "0.75rem", color: "#888", display: "flex", alignItems: "center", gap: "4px" }}>
-          <ThumbsUp size={11} /> {project.upvote_count}
-        </span>
-        <span style={{ fontSize: "0.6875rem", fontWeight: 600, padding: "2px 8px", borderRadius: "20px", backgroundColor: `${statusColor}18`, color: statusColor }}>
-          {project.status}
-        </span>
-      </div>
+      {project.prize_place && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
+          <span style={{ fontSize: "0.75rem", color: "#ffba08", fontWeight: 600 }}>
+            🏆 {project.prize_place} · ${project.payment_amount ?? 100} USDC
+          </span>
+          <PaymentStatusBadge status={project.payment_status} />
+        </div>
+      )}
     </div>
   );
 }
@@ -326,7 +336,7 @@ export default function UserDetailPage() {
       setProfile(profileData as Profile);
 
       const [{ data: projectData }, { data: joinData }, { data: voteData }] = await Promise.all([
-        supabase.from("projects").select("id, name, tagline, status, upvote_count, created_at").eq("user_id", userId).order("created_at", { ascending: false }),
+        supabase.from("projects").select("id, name, tagline, status, prize_place, payment_status, payment_amount, upvote_count, created_at").eq("user_id", userId).order("created_at", { ascending: false }),
         supabase.from("cohort_participants").select("joined_at, cohorts(id, title)").eq("user_id", userId),
         supabase.from("votes").select("created_at, projects(name)").eq("user_id", userId),
       ]);

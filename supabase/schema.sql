@@ -411,3 +411,10 @@ alter table profiles add column if not exists university_verified_at timestamptz
 -- Migration: Add flag columns to profiles
 alter table profiles add column if not exists is_flagged boolean default false;
 alter table profiles add column if not exists flagged_reason text;
+
+-- Migration: Add payment tracking fields to projects
+alter table projects add column if not exists payment_status text
+  check (payment_status in ('pending', 'processing', 'sent', 'confirmed'))
+  default 'pending';
+alter table projects add column if not exists payment_amount numeric(10,2);
+alter table projects add column if not exists payment_updated_at timestamptz;
